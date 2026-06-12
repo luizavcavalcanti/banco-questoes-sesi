@@ -323,6 +323,14 @@ function tagDisc(d){
 }
 
 // ===== RENDER CARD =====
+function limpaEnunciado(txt){
+  // Remove padrões como "1. ", "01. ", "Questão 1 ", "QUESTÃO 01 " do início
+  return txt
+    .replace(/^\s*quest[aã]o\s*\d+[\s\.\-:]*/i, '')
+    .replace(/^\s*\d{1,3}[\s\.\-\)]+/, '')
+    .trim();
+}
+
 function renderCard(q, delay){
   const sel = selecionadas.has(q.num);
   const gabRev = gabaritosRevelados.has(q.num);
@@ -343,7 +351,7 @@ function renderCard(q, delay){
     <div class="card-num">Questão ${String(q.num).padStart(2,'0')}</div>
     <div class="card-body">
       ${imgsHtml}
-      <p class="enunciado">${q.enunciado}</p>
+      <p class="enunciado">${limpaEnunciado(q.enunciado)}</p>
       ${q.pergunta?`<p class="pergunta">${q.pergunta}</p>`:''}
       <ul class="alternativas">${altsHtml}</ul>
     </div>
