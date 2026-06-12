@@ -150,6 +150,7 @@ body{font-family:'Montserrat',sans-serif;background:var(--navy);color:var(--whit
 .footer span{font-weight:400;opacity:.9;}
 @media(max-width:600px){.footer{flex-direction:column;text-align:center;}.footer-col:nth-child(2),.footer-col:nth-child(3){text-align:center;}}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 <header class="header">
@@ -262,7 +263,7 @@ body{font-family:'Montserrat',sans-serif;background:var(--navy);color:var(--whit
 
     <div class="modal-cab-btns">
       <button class="btn-cancelar-cab" onclick="fecharModalCab()">Cancelar</button>
-      <button class="btn-confirmar" onclick="confirmarCabecalho()">Gerar Prévia da Ficha →</button>
+      <button class="btn-confirmar" onclick="confirmarCabecalho()">Gerar PDF da Ficha →</button>
     </div>
   </div>
 </div>
@@ -458,178 +459,159 @@ function confirmarCabecalho(){
 }
 
 /* =====================================================================
-   PRÉVIA HTML DA FICHA (sem PDF por enquanto)
+   GERAÇÃO DE PDF — Modelo de Ficha SESI-PE aprovado
    ===================================================================== */
 function abrirPreviaFicha(d){
-  const { unidade, professor, disciplina, titulo, conteudo, questoes } = d;
+  if(!window.jspdf){alert('jsPDF não carregou. Verifique sua conexão.');return;}
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({unit:'mm',format:'a4'});
+  const W=210, mL=15, mR=15, mT=18, mB=20;
+  const cW = W - mL - mR;
+  const azul=[26,79,160], verde=[90,176,48], preto=[0,0,0], cinza=[150,150,150];
+  let y = mT;
 
-  // Itens de conteúdo vivenciado
-  const itensConteudo = conteudo
-    ? conteudo.split('\n').filter(l=>l.trim()).map(l=>`<li>${l.trim()}</li>`).join('')
-    : '<li><em>(não informado)</em></li>';
-
-  // Questões
-  let questoesHtml='';
-  questoes.forEach((q,idx)=>{
-    let imgsHtml='';
-    (q.imagens||[]).forEach(ref=>{
-      if(IMGS[ref]) imgsHtml+=`<img src="${IMGS[ref]}" class="ficha-img" alt="">`;
-      else imgsHtml+=`<img src="imagens/${ref}.png" class="ficha-img" alt="" onerror="this.style.display='none'">`;
-    });
-    const altsHtml=q.alternativas.map(a=>
-      `<div class="ficha-alt"><span class="ficha-alt-letra">${a.letra})</span> ${a.texto}</div>`
-    ).join('');
-    questoesHtml+=`
-      <div class="ficha-questao">
-        <div class="ficha-q-header">Questão ${String(idx+1).padStart(2,'0')}</div>
-        <div class="ficha-enunciado">${q.enunciado}</div>
-        ${imgsHtml}
-        ${q.pergunta?`<div class="ficha-pergunta">${q.pergunta}</div>`:''}
-        <div class="ficha-alts">${altsHtml}</div>
-      </div>`;
-  });
-
-  const html=`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">
-<title>Ficha SESI</title>
-<style>
-  body{font-family:Arial,sans-serif;font-size:11pt;margin:0;padding:0;color:#000;}
-  .ficha-page{width:210mm;min-height:297mm;margin:0 auto;padding:15mm 18mm;box-sizing:border-box;}
-  /* Cabeçalho */
-  .ficha-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;border-bottom:2px solid #1a4fa0;padding-bottom:8px;}
-  .ficha-logo{font-size:26pt;font-weight:900;font-style:italic;color:#1a4fa0;letter-spacing:-1px;}
-  .ficha-logo span{color:#5ab030;}
-  .ficha-tarja{width:120px;height:28px;background:linear-gradient(105deg,#1a4fa0 60%,#5ab030 60%);border-radius:2px;}
-  /* Bloco aluno */
-  .ficha-aluno{border:1px solid #999;padding:7px 10px;margin-bottom:10px;font-size:9.5pt;}
-  .ficha-aluno-row{display:flex;gap:20px;margin-bottom:4px;}
-  .ficha-aluno-row span{flex:1;border-bottom:1px solid #aaa;padding-bottom:2px;}
-  .ficha-aluno-label{font-weight:bold;font-size:9pt;color:#1a4fa0;}
-  /* Título */
-  .ficha-titulo{text-align:center;font-size:14pt;font-weight:bold;color:#1a4fa0;text-transform:uppercase;margin:10px 0;}
-  /* Conteúdo vivenciado */
-  .ficha-conteudo{border:1px solid #999;padding:7px 10px;margin-bottom:10px;font-size:9.5pt;}
-  .ficha-conteudo-label{font-weight:bold;color:#1a4fa0;margin-bottom:4px;}
-  .ficha-conteudo ul{margin:0;padding-left:18px;}
-  /* Faixa recomendações + desempenho */
-  .ficha-rec-desemp{display:flex;border:1px solid #999;margin-bottom:12px;font-size:9pt;}
-  .ficha-rec{flex:2;padding:7px 10px;border-right:1px solid #999;}
-  .ficha-rec-title{font-weight:bold;color:#1a4fa0;margin-bottom:4px;}
-  .ficha-rec ol{margin:0;padding-left:16px;}
-  .ficha-rec li{margin-bottom:2px;}
-  .ficha-desemp{flex:1;padding:7px 10px;}
-  .ficha-desemp-title{font-weight:bold;color:#1a4fa0;margin-bottom:4px;}
-  /* Separador */
-  .ficha-sep{border:none;border-top:2px solid #1a4fa0;margin:10px 0;}
-  /* Questões */
-  .ficha-questao{margin-bottom:18px;page-break-inside:avoid;}
-  .ficha-q-header{font-weight:bold;color:#1a4fa0;margin-bottom:4px;}
-  .ficha-enunciado{font-size:10pt;margin-bottom:5px;}
-  .ficha-pergunta{font-size:10pt;margin-bottom:5px;}
-  .ficha-img{max-width:100%;display:block;margin:6px 0;}
-  .ficha-alts{margin-left:10px;}
-  .ficha-alt{margin-bottom:3px;font-size:10pt;}
-  .ficha-alt-letra{font-weight:bold;color:#1a4fa0;}
-  /* Rodapé */
-  .ficha-footer{border-top:1px solid #999;padding-top:6px;font-size:8pt;display:flex;justify-content:space-between;margin-top:20px;}
-  .ficha-footer-col1{font-weight:bold;color:#1a4fa0;}
-  .ficha-footer-col2{text-align:center;color:#333;}
-  .ficha-footer-col3{text-align:right;color:#333;}
-  .ficha-footer-tarja{width:60px;height:14px;background:#5ab030;display:inline-block;margin-left:6px;vertical-align:middle;transform:skewX(-16deg);}
-  @media print{
-    body{margin:0;}
-    .ficha-page{padding:12mm 15mm;}
-    .no-print{display:none;}
+  function rodape(){
+    const yR = 297 - mB + 4;
+    doc.setDrawColor(...cinza); doc.setLineWidth(0.3);
+    doc.line(mL, yR - 6, W - mR, yR - 6);
+    doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(...azul);
+    doc.text('SESI', mL, yR - 2);
+    doc.setFont('helvetica','normal'); doc.setTextColor(80,80,80);
+    doc.text('Serviço Social da Indústria', mL, yR + 1);
+    doc.text(d.unidade.nome, W/2, yR - 2, {align:'center'});
+    doc.text(d.unidade.endereco, W/2, yR + 1, {align:'center'});
+    doc.text(d.unidade.telefone, W - mR, yR - 2, {align:'right'});
+    doc.text('www.pe.sesi.org.br', W - mR, yR + 1, {align:'right'});
+    doc.setFillColor(...verde);
+    doc.triangle(W-mR-14, yR-6, W-mR, yR-6, W-mR, yR+2, 'F');
   }
 
-/* ── Footer ─────────────────────────────────────────────────────────── */
-.footer{background:#144398;color:#fff;padding:18px clamp(16px,4vw,48px);display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap;font-size:13px;margin-top:auto;}
-.footer-col{display:flex;flex-direction:column;gap:3px;}
-.footer-col:nth-child(2){text-align:center;}
-.footer-col:nth-child(3){text-align:right;}
-.footer strong{font-weight:700;font-size:13px;}
-.footer span{font-weight:400;opacity:.9;}
-@media(max-width:600px){.footer{flex-direction:column;text-align:center;}.footer-col:nth-child(2),.footer-col:nth-child(3){text-align:center;}}
-</style>
-</head><body>
-<div class="no-print" style="background:#1a4fa0;color:#fff;padding:10px 20px;display:flex;align-items:center;gap:16px;">
-  <span style="font-weight:bold;">📄 Prévia da Ficha SESI-PE</span>
-  <button onclick="window.print()" style="background:#5ab030;color:#fff;border:none;padding:6px 16px;border-radius:6px;cursor:pointer;font-weight:bold;">🖨 Imprimir / Salvar PDF</button>
-  <button onclick="window.close()" style="background:rgba(255,255,255,.2);color:#fff;border:none;padding:6px 16px;border-radius:6px;cursor:pointer;">✕ Fechar</button>
-</div>
-<div class="ficha-page">
-  <!-- CABEÇALHO -->
-  <div class="ficha-header">
-    <div class="ficha-logo">SES<span>i</span></div>
-    <div class="ficha-tarja"></div>
-  </div>
-  <!-- BLOCO ALUNO -->
-  <div class="ficha-aluno">
-    <div class="ficha-aluno-row">
-      <span><span class="ficha-aluno-label">UNIDADE SESI:</span> ${unidade.nome.replace('Escola SESI: ','')}</span>
-      <span><span class="ficha-aluno-label">TURMA:</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-    </div>
-    <div class="ficha-aluno-row">
-      <span><span class="ficha-aluno-label">ESTUDANTE:</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-    </div>
-    <div class="ficha-aluno-row">
-      <span><span class="ficha-aluno-label">DATA:</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-      <span><span class="ficha-aluno-label">DISCIPLINA:</span> ${disciplina}</span>
-      <span><span class="ficha-aluno-label">PROFESSOR(A):</span> ${professor}</span>
-    </div>
-  </div>
-  <!-- TÍTULO -->
-  <div class="ficha-titulo">${titulo}</div>
-  <!-- CONTEÚDO VIVENCIADO -->
-  <div class="ficha-conteudo">
-    <div class="ficha-conteudo-label">Conteúdo vivenciado para esta avaliação:</div>
-    <ul>${itensConteudo}</ul>
-  </div>
-  <!-- RECOMENDAÇÕES + DESEMPENHO -->
-  <div class="ficha-rec-desemp">
-    <div class="ficha-rec">
-      <div class="ficha-rec-title">RECOMENDAÇÕES:</div>
-      <ol>
-        <li>Preencha os dados do cabeçalho a caneta;</li>
-        <li>As questões devem ser respondidas a caneta;</li>
-        <li>Interpretar e decidir sobre cada questão cabe única e exclusivamente ao aluno;</li>
-        <li>Não serão aceitas questões rasuradas ou com mais de uma alternativa;</li>
-        <li>Não utilize o aparelho celular durante a avaliação.</li>
-      </ol>
-    </div>
-    <div class="ficha-desemp">
-      <div class="ficha-desemp-title">Desempenho</div>
-    </div>
-  </div>
-  <!-- SEPARADOR -->
-  <hr class="ficha-sep">
-  <!-- QUESTÕES -->
-  ${questoesHtml}
-  <!-- RODAPÉ -->
-  <div class="ficha-footer">
-    <div class="ficha-footer-col1">SESI<br>Serviço Social da Indústria</div>
-    <div class="ficha-footer-col2">${unidade.nome}<br>${unidade.endereco}</div>
-    <div class="ficha-footer-col3">${unidade.telefone}<br>www.pe.sesi.org.br <span class="ficha-footer-tarja"></span></div>
-  </div>
-</div>
+  function cabTopo(){
+    doc.setFont('helvetica','bolditalic'); doc.setFontSize(22);
+    doc.setTextColor(...azul);
+    doc.text('SES', mL, y+8);
+    const w = doc.getTextWidth('SES');
+    doc.setTextColor(...verde);
+    doc.text('i', mL+w, y+8);
+    doc.setFillColor(...azul);
+    doc.triangle(W-mR-34, y, W-mR, y, W-mR, y+14, 'F');
+    doc.setFillColor(...verde);
+    doc.triangle(W-mR-18, y, W-mR, y, W-mR, y+14, 'F');
+    y += 16;
+    doc.setDrawColor(...azul); doc.setLineWidth(0.6);
+    doc.line(mL, y, W-mR, y);
+    y += 4;
+  }
 
-<footer class="footer">
-  <div class="footer-col">
-    <strong>Diretoria da Educação — SESI PE</strong>
-  </div>
-  <div class="footer-col">
-    <strong>Endereço:</strong>
-    <span>Av. Cruz Cabugá, 767, Casa da Indústria, Santo Amaro, Recife</span>
-  </div>
-  <div class="footer-col">
-    <strong>Contato:</strong>
-    <span>Tel (81) 3428-8300</span>
-  </div>
-</footer>
-</body></html>`;
+  function check(n){
+    if(y + n > 297 - mB){
+      rodape(); doc.addPage(); y = mT; cabTopo();
+    }
+  }
 
-  const win=window.open('','_blank');
-  if(win){win.document.write(html);win.document.close();}
-  else alert('Habilite pop-ups para visualizar a ficha.');
+  cabTopo();
+
+  // Bloco aluno
+  doc.setDrawColor(...cinza); doc.setLineWidth(0.3);
+  doc.rect(mL, y, cW, 22);
+  doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(...azul);
+  doc.text('UNIDADE SESI:', mL+2, y+5);
+  doc.setFont('helvetica','normal'); doc.setTextColor(...preto);
+  doc.text(d.unidade.nome.replace('Escola SESI: ',''), mL+28, y+5);
+  doc.setFont('helvetica','bold'); doc.setTextColor(...azul);
+  doc.text('TURMA:', W/2+2, y+5);
+  doc.line(mL, y+8, W-mR, y+8);
+  doc.text('ESTUDANTE:', mL+2, y+13);
+  doc.line(mL, y+16, W-mR, y+16);
+  doc.text('DATA:', mL+2, y+21);
+  doc.line(mL+10, y+22, mL+38, y+22);
+  doc.text('DISCIPLINA:', mL+42, y+21);
+  doc.setFont('helvetica','normal'); doc.setTextColor(...preto);
+  doc.text(d.disciplina, mL+58, y+21);
+  doc.setFont('helvetica','bold'); doc.setTextColor(...azul);
+  doc.text('PROFESSOR(A):', W/2+2, y+21);
+  doc.setFont('helvetica','normal'); doc.setTextColor(...preto);
+  doc.text(d.professor, W/2+25, y+21);
+  y += 26;
+
+  // Título
+  check(12);
+  doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor(...azul);
+  doc.text(d.titulo.toUpperCase(), W/2, y+7, {align:'center'});
+  y += 12;
+
+  // Conteúdo vivenciado
+  const itens = d.conteudo ? d.conteudo.split('\n').filter(l=>l.trim()) : [];
+  const cvH = Math.max(12, 6 + itens.length * 5);
+  check(cvH + 4);
+  doc.setDrawColor(...cinza); doc.rect(mL, y, cW, cvH);
+  doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(...azul);
+  doc.text('Conteúdo vivenciado para esta avaliação:', mL+2, y+4);
+  doc.setFont('helvetica','normal'); doc.setTextColor(...preto);
+  if(itens.length) itens.forEach((item,i)=>doc.text('• '+item, mL+4, y+9+i*5));
+  else{ doc.setTextColor(...cinza); doc.text('(não informado)', mL+4, y+9); }
+  y += cvH + 4;
+
+  // Recomendações + Desempenho
+  check(38);
+  const recH = 34;
+  doc.setDrawColor(...cinza); doc.rect(mL, y, cW, recH);
+  doc.line(mL+(cW*0.65), y, mL+(cW*0.65), y+recH);
+  doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(...azul);
+  doc.text('RECOMENDAÇÕES:', mL+2, y+5);
+  doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...preto);
+  ['1. Preencha os dados do cabeçalho a caneta;',
+   '2. As questões devem ser respondidas a caneta;',
+   '3. Interpretar e decidir sobre cada questão cabe ao aluno;',
+   '4. Não serão aceitas questões rasuradas ou com 2+ alternativas;',
+   '5. Não utilize o aparelho celular durante a avaliação.'
+  ].forEach((r,i)=>doc.text(r, mL+2, y+10+i*5));
+  doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(...azul);
+  doc.text('Desempenho', mL+(cW*0.65)+2, y+5);
+  y += recH + 4;
+
+  // Separador azul
+  check(6);
+  doc.setDrawColor(...azul); doc.setLineWidth(0.8);
+  doc.line(mL, y, W-mR, y);
+  y += 6;
+
+  // Questões
+  d.questoes.forEach((q,idx)=>{
+    check(14);
+    doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(...azul);
+    doc.text('Questão '+String(idx+1).padStart(2,'0'), mL, y);
+    y += 5;
+
+    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...preto);
+    const eLines = doc.splitTextToSize(q.enunciado, cW);
+    check(eLines.length*4.5+3);
+    doc.text(eLines, mL, y);
+    y += eLines.length*4.5+2;
+
+    if(q.pergunta){
+      const pLines = doc.splitTextToSize(q.pergunta, cW);
+      check(pLines.length*4.5+3);
+      doc.setFont('helvetica','bold');
+      doc.text(pLines, mL, y);
+      doc.setFont('helvetica','normal');
+      y += pLines.length*4.5+2;
+    }
+
+    q.alternativas.forEach(a=>{
+      const aLines = doc.splitTextToSize(a.texto, cW-10);
+      check(aLines.length*4.5+2);
+      doc.setFont('helvetica','bold'); doc.setTextColor(...azul);
+      doc.text(a.letra+')', mL+2, y);
+      doc.setFont('helvetica','normal'); doc.setTextColor(...preto);
+      doc.text(aLines, mL+10, y);
+      y += aLines.length*4.5+1;
+    });
+    y += 4;
+  });
+
+  rodape();
+  doc.save('Ficha_SESI_'+d.disciplina.replace(/\s/g,'_')+'.pdf');
 }
 
 /* =====================================================================
