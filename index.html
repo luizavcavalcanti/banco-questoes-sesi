@@ -366,9 +366,16 @@ function revelarGabarito(num){
 /* =====================================================================
    SELEÇÃO
    ===================================================================== */
-function toggleSel(num){selecionadas.has(num)?selecionadas.delete(num):selecionadas.add(num);atualizarBarraSel();
+function toggleSel(num){
+  selecionadas.has(num)?selecionadas.delete(num):selecionadas.add(num);
+  atualizarBarraSel();
   const card=document.getElementById(`card-${num}`);
-  if(card) card.classList.toggle('selecionada', selecionadas.has(num));
+  if(card){
+    const marcada=selecionadas.has(num);
+    card.classList.toggle('selecionada', marcada);
+    const cb=card.querySelector('.card-checkbox');
+    if(cb) cb.classList.toggle('marcada', marcada);
+  }
 }
 function atualizarBarraSel(){
   const n=selecionadas.size;
