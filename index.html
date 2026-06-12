@@ -521,14 +521,14 @@ function abrirPreviaFicha(d){
   // ── PÁGINA 1 ──
   desenhaCab();
 
-  // ── BLOCO ALUNO — apenas linhas horizontais (sem borda completa) ──
+  // ── BLOCO ALUNO — borda completa + linhas internas (sem linhas de preenchimento) ──
   doc.setDrawColor(...cinza);
   doc.setLineWidth(0.3);
-  // 3 linhas separadoras
-  doc.line(mL, y,     W-mR, y);      // topo
-  doc.line(mL, y+7,   W-mR, y+7);   // após linha 1
-  doc.line(mL, y+14,  W-mR, y+14);  // após linha 2
-  doc.line(mL, y+21,  W-mR, y+21);  // fundo
+  // Borda completa
+  doc.rect(mL, y, W-mL-mR, 21);
+  // Divisórias horizontais internas
+  doc.line(mL, y+7,  W-mR, y+7);
+  doc.line(mL, y+14, W-mR, y+14);
 
   // Linha 1: UNIDADE | TURMA
   doc.setFont('helvetica','bold'); doc.setFontSize(8.5); doc.setTextColor(...azul);
@@ -537,17 +537,14 @@ function abrirPreviaFicha(d){
   doc.text(d.unidade.nome.replace('Escola SESI: ',''), mL+29, y+5);
   doc.setFont('helvetica','bold'); doc.setTextColor(...azul);
   doc.text('TURMA:', W/2+2, y+5);
-  doc.setDrawColor(...cinza); doc.line(W/2+14, y+6, W-mR-2, y+6);
 
   // Linha 2: ESTUDANTE
   doc.setFont('helvetica','bold'); doc.setFontSize(8.5); doc.setTextColor(...azul);
   doc.text('ESTUDANTE:', mL+2, y+12);
-  doc.setDrawColor(...cinza); doc.line(mL+21, y+13, W-mR-2, y+13);
 
   // Linha 3: DATA | DISCIPLINA | PROFESSOR
   doc.setFont('helvetica','bold'); doc.setFontSize(8.5); doc.setTextColor(...azul);
   doc.text('DATA:', mL+2, y+19);
-  doc.setDrawColor(...cinza); doc.line(mL+11, y+20, mL+42, y+20);
   doc.setFont('helvetica','bold'); doc.setTextColor(...azul);
   doc.text('DISCIPLINA:', mL+46, y+19);
   doc.setFont('helvetica','normal'); doc.setTextColor(...preto);
