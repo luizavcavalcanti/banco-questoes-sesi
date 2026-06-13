@@ -320,7 +320,7 @@ function renderEnunciado(texto){
   return t;
 }
 function renderCard(q,delay){
-  const sel=selecionadas.has(q.num), gabRev=gabaritosRevelados.has(q.num);
+  const sel=selecionadas.has(q.id), gabRev=gabaritosRevelados.has(q.id);
   // imagens "soltas" (caso o enunciado não tenha a tag inline) — fallback
   let imgsHtml='';
   const enunTemTag=/\[\s*q[\w.]+\.(?:png|jpe?g)\s*\]/i.test(q.enunciado||'');
@@ -329,16 +329,16 @@ function renderCard(q,delay){
   }
   const altsHtml=q.alternativas.map(a=>{
     const ok=gabRev&&a.letra===q.gabarito;
-    return`<li class="alt${ok?' correta':''}" onclick="revelarGabarito(${q.num})"><span class="alt-letra">${a.letra})</span><span>${a.texto}</span></li>`;
+    return`<li class="alt${ok?' correta':''}" onclick="revelarGabarito(${q.id})"><span class="alt-letra">${a.letra})</span><span>${a.texto}</span></li>`;
   }).join('');
   const habsHtml=(q.habilidades||[]).map(h=>`<span class="hab-tag">${h}</span>`).join('');
-  return`<div class="card${sel?' selecionada':''}" id="card-${q.num}" style="animation-delay:${delay}ms">
+  return`<div class="card${sel?' selecionada':''}" id="card-${q.id}" style="animation-delay:${delay}ms">
     <div class="card-header">
       <div class="card-header-left">
         <div class="card-tags">${tagProva(q.tipo_prova)} ${tagDisc(q.disciplina)} <span class="tag tag-ano">${q.ano}</span></div>
         <div class="habilidades-topo">${habsHtml}</div>
       </div>
-      <div class="card-checkbox${sel?' marcada':''}" onclick="toggleSel(${q.num})"></div>
+      <div class="card-checkbox${sel?' marcada':''}" onclick="toggleSel(${q.id})"></div>
     </div>
     <div class="card-body">
       ${imgsHtml}
@@ -347,7 +347,7 @@ function renderCard(q,delay){
       <ul class="alternativas">${altsHtml}</ul>
     </div>
     <div class="card-footer">
-      <button class="btn-gabarito${gabRev?' revelado':''}" onclick="revelarGabarito(${q.num})">${gabRev?'✓ Gabarito: '+q.gabarito:'Ver Gabarito'}</button>
+      <button class="btn-gabarito${gabRev?' revelado':''}" onclick="revelarGabarito(${q.id})">${gabRev?'✓ Gabarito: '+q.gabarito:'Ver Gabarito'}</button>
     </div>
   </div>`;
 }
@@ -385,7 +385,7 @@ function revelarGabarito(num){
   const gabRev=gabaritosRevelados.has(num);
   const card=document.getElementById(`card-${num}`);
   if(!card) return;
-  const q=QUESTOES.find(x=>x.num===num);
+  const q=QUESTOES.find(x=>x.id===num);
   if(!q) return;
   // Atualizar alternativas
   card.querySelectorAll('.alt').forEach(li=>{
@@ -463,7 +463,7 @@ function confirmarCabecalho(){
 
   // Armazenar dados para uso posterior no PDF
   window._fichaDados = { unidade, professor, disciplina, titulo, conteudo,
-                         questoes: QUESTOES.filter(q=>selecionadas.has(q.num)) };
+                         questoes: QUESTOES.filter(q=>selecionadas.has(q.id)) };
 
   // Abrir prévia HTML da ficha
   abrirPreviaFicha(window._fichaDados);
@@ -768,6 +768,7 @@ function normalizarQuestao(q){
   else if(typeof q.habilidades==='string' && q.habilidades.trim())
     habs=q.habilidades.split(';').map(h=>h.trim()).filter(Boolean);
   return {
+    id:q.id!=null?q.id:q.num,
     num:q.num,
     tipo_prova:q.tipo_prova||'',
     disciplina:q.disciplina||'',
