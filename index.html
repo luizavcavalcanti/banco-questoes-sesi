@@ -89,6 +89,7 @@ body{font-family:'Montserrat',sans-serif;background:var(--navy);color:var(--whit
 .card-body{padding:10px 16px 14px;flex:1;}
 .enunciado{font-family:'Source Serif 4',serif;font-size:13.5px;line-height:1.68;color:#1e293b;margin-bottom:12px;text-align:justify;text-justify:inter-word;}
 .card-img{width:100%;border-radius:8px;margin-bottom:12px;border:1px solid var(--gray-border);display:block;}
+.alt .card-img{max-width:260px;width:auto;max-height:160px;margin:4px 0;}
 .pergunta{font-family:'Montserrat',sans-serif;font-size:13px;font-weight:600;color:#0f172a;margin-bottom:10px;text-align:justify;text-justify:inter-word;}
 .alternativas{list-style:none;display:flex;flex-direction:column;gap:5px;}
 .alt{display:flex;align-items:flex-start;gap:8px;padding:7px 10px;border-radius:8px;border:1px solid transparent;cursor:pointer;transition:background .15s;font-size:12.5px;line-height:1.5;color:#374151;}
@@ -330,7 +331,7 @@ function renderCard(q,delay){
   }
   const altsHtml=q.alternativas.map(a=>{
     const ok=gabRev&&a.letra===q.gabarito;
-    return`<li class="alt${ok?' correta':''}" onclick="revelarGabarito(${q.id})"><span class="alt-letra">${a.letra})</span><span>${a.texto}</span></li>`;
+    return`<li class="alt${ok?' correta':''}" onclick="revelarGabarito(${q.id})"><span class="alt-letra">${a.letra})</span><span>${renderEnunciado(a.texto)}</span></li>`;
   }).join('');
   const habsHtml=(q.habilidades||[]).map(h=>`<span class="hab-tag">${h}</span>`).join('');
   return`<div class="card${sel?' selecionada':''}" id="card-${q.id}" style="animation-delay:${delay}ms">
@@ -505,9 +506,24 @@ function dimImagem(dataUrl){
 async function abrirPreviaFicha(d){
   if(!window.jspdf){alert('jsPDF não carregou. Recarregue a página.');return;}
   // Pré-carregar todas as imagens das questões selecionadas
+  // (de q.imagens E das tags [qXXX.ext] no enunciado e nas alternativas)
   const cacheImg={};
+  const tagImg=/\[\s*(q[\w.]+\.(?:png|jpe?g))\s*\]/gi;
+  function coletarArquivos(q){
+    const arquivos=new Set(q.imagens||[]);
+    let m;
+    const enun=String(q.enunciado||'');
+    tagImg.lastIndex=0;
+    while((m=tagImg.exec(enun))) arquivos.add(m[1]);
+    (q.alternativas||[]).forEach(a=>{
+      const t=String(a.texto||'');
+      tagImg.lastIndex=0;
+      let mm; while((mm=tagImg.exec(t))) arquivos.add(mm[1]);
+    });
+    return [...arquivos];
+  }
   for(const q of d.questoes){
-    for(const arq of (q.imagens||[])){
+    for(const arq of coletarArquivos(q)){
       if(!cacheImg[arq]){
         const img=await carregarImagem(arq);
         if(img){
@@ -764,19 +780,43 @@ async function abrirPreviaFicha(d){
       cy += 2;
     }
 
-    // Alternativas
+    // Alternativas (texto e/ou imagem)
     q.alternativas.forEach(a=>{
-      const aLines = doc.splitTextToSize(a.texto, colW-9);
       garantir(4.5);
       doc.setFont('times','bold'); doc.setFontSize(10); doc.setTextColor(...azul);
       doc.text(a.letra+')', colX[colAtual]+1, cy);
       doc.setFont('times','normal'); doc.setTextColor(...preto);
-      aLines.forEach((line,i)=>{
-        garantir(4.5);
-        const alinhar = i < aLines.length-1;
-        doc.text(line, colX[colAtual]+9, cy, alinhar ? {maxWidth:colW-9, align:'justify'} : {});
-        cy += 4.5;
+      const cyLetra = cy;
+      // dividir o texto da alternativa em partes (texto e imagens)
+      const partes = String(a.texto||'').split(/(\[\s*q[\w.]+\.(?:png|jpe?g)\s*\])/gi);
+      let primeiraLinha = true;
+      partes.forEach(parte=>{
+        const mImg = parte.match(/\[\s*(q[\w.]+\.(?:png|jpe?g))\s*\]/i);
+        if(mImg){
+          const img=(window._cacheImg||{})[mImg[1]];
+          if(img && img.w && img.h){
+            let lw=Math.min(colW-9, 55), lh=lw*(img.h/img.w);
+            if(lh>40){ lh=40; lw=lh*(img.w/img.h); }
+            garantir(lh+2);
+            try{ doc.addImage(img.data, img.tipo, colX[colAtual]+9, cy, lw, lh); }catch(e){}
+            cy += lh+2;
+            primeiraLinha=false;
+          }
+        } else {
+          const limpo = parte.replace(/[ \t]{2,}/g,' ').trim();
+          if(limpo){
+            const aLines = doc.splitTextToSize(limpo, colW-9);
+            aLines.forEach((line,i)=>{
+              garantir(4.5);
+              const alinhar = i < aLines.length-1;
+              doc.text(line, colX[colAtual]+9, cy, alinhar ? {maxWidth:colW-9, align:'justify'} : {});
+              cy += 4.5;
+            });
+            primeiraLinha=false;
+          }
+        }
       });
+      if(primeiraLinha){ cy += 4.5; } // alternativa vazia (raro), garante avanço
       cy += 0.5;
     });
     cy += 5; // espaço entre questões
