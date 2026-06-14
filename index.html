@@ -677,155 +677,110 @@ async function abrirPreviaFicha(d){
   doc.line(mL, y, W-mR, y);
   y += 6;
 
-  // ── HELPER: renderiza enunciado com imagens inline, retorna novo cy ──
-  function renderEnunciadoPDF(texto, colX, cy, colW){
-    if(!texto) return cy;
-    // Divide o texto nos pontos onde há tags [qXXX.ext], preservando a ordem
+  // ── QUESTÕES EM 2 COLUNAS (fluxo contínuo) ──
+  const colW = (W-mL-mR-5)/2;
+  const colX = [mL, mL+colW+5];
+  const colDivX = mL+colW+2.5;
+  let colAtual = 0;        // 0 = esquerda, 1 = direita
+  let cy = y;              // cursor vertical da coluna atual
+  let colDivYstart = y;
+
+  // Avança para a próxima coluna; se já estava na direita, nova página
+  function proximaColuna(){
+    if(colAtual===0){
+      colAtual=1; cy=CONT_Y;
+    } else {
+      doc.setDrawColor(...azul); doc.setLineWidth(0.3);
+      doc.line(colDivX, colDivYstart, colDivX, MAX_Y);
+      desenhaRod(); doc.addPage(); desenhaCab();
+      colAtual=0; cy=CONT_Y; colDivYstart=CONT_Y;
+    }
+  }
+  // Garante que há espaço para "needed" mm; se não, troca de coluna
+  function garantir(needed){
+    if(cy + needed > MAX_Y) proximaColuna();
+  }
+  // Escreve linhas de texto justificadas, quebrando linha a linha entre colunas
+  function escreverLinhas(linhas, x, lh, just){
+    linhas.forEach((line,i)=>{
+      garantir(lh);
+      const alinhar = just && i < linhas.length-1;
+      doc.text(line, x, cy, alinhar ? {maxWidth:colW-(x-colX[colAtual]), align:'justify'} : {});
+      cy += lh;
+    });
+  }
+  // Insere uma imagem (quebra de coluna se não couber)
+  function inserirImagem(arq){
+    const img=(window._cacheImg||{})[arq];
+    if(!img || !img.w || !img.h) return;
+    let lw=colW*0.95, lh=lw*(img.h/img.w);
+    const ALT_MAX=80;
+    if(lh>ALT_MAX){ lh=ALT_MAX; lw=lh*(img.w/img.h); }
+    garantir(lh+2);
+    const ix=colX[colAtual]+(colW-lw)/2;
+    try{ doc.addImage(img.data, img.tipo, ix, cy, lw, lh); }catch(e){}
+    cy += lh+2;
+  }
+  // Renderiza o enunciado com imagens inline, em fluxo
+  function fluirEnunciado(texto){
+    if(!texto) return;
     const partes = texto.split(/(\[\s*q[\w.]+\.(?:png|jpe?g)\s*\])/gi);
     partes.forEach(parte=>{
       const mImg = parte.match(/\[\s*(q[\w.]+\.(?:png|jpe?g))\s*\]/i);
       if(mImg){
-        // É uma imagem
-        const arq = mImg[1];
-        const img = (window._cacheImg||{})[arq];
-        if(img && img.w && img.h){
-          // Escalar para caber na coluna, com altura máxima razoável
-          let larguraMM = Math.min(colW, colW*0.95);
-          let alturaMM = larguraMM * (img.h/img.w);
-          const ALT_MAX = 70;
-          if(alturaMM > ALT_MAX){ alturaMM = ALT_MAX; larguraMM = alturaMM*(img.w/img.h); }
-          // Quebra de coluna/página se não couber
-          if(cy + alturaMM + 2 > MAX_Y){
-            cy = quebrarColuna(cy);
-          }
-          const imgX = colX + (colW - larguraMM)/2; // centralizar na coluna
-          try{ doc.addImage(img.data, img.tipo, imgX, cy, larguraMM, alturaMM); }catch(e){}
-          cy += alturaMM + 2;
-        }
+        inserirImagem(mImg[1]);
       } else {
-        // É texto
         const limpo = parte.replace(/\n{2,}/g,'\n').replace(/[ \t]{2,}/g,' ').trim();
         if(limpo){
           doc.setFont('times','normal'); doc.setFontSize(10); doc.setTextColor(...preto);
           const linhas = doc.splitTextToSize(limpo, colW);
-          // quebra se necessário
-          if(cy + linhas.length*4.5 > MAX_Y){ cy = quebrarColuna(cy); }
-          doc.text(linhas, colX, cy, {maxWidth:colW, align:'justify', lineHeightFactor:1.15});
-          cy += linhas.length*4.5 + 1;
+          escreverLinhas(linhas, colX[colAtual], 4.5, true);
         }
       }
     });
-    return cy;
   }
-  // Quebra simples de coluna dentro do render de uma questão longa
-  function quebrarColuna(cy){
-    if(colAtual===0){ colAtual=1; return yDir>CONT_Y?yDir:CONT_Y; }
-    else {
-      doc.setDrawColor(...azul); doc.setLineWidth(0.3);
-      doc.line(colDivX, colDivYstart, colDivX, Math.max(yEsq,yDir));
-      desenhaRod(); doc.addPage(); desenhaCab();
-      yEsq=CONT_Y; yDir=CONT_Y; colAtual=0; colDivYstart=CONT_Y;
-      return CONT_Y;
-    }
-  }
-
-  // ── QUESTÕES EM 2 COLUNAS ──
-  const colW = (W-mL-mR-5)/2;
-  const col1X = mL;
-  const col2X = mL+colW+5;
-  const colDivX = mL+colW+2.5;
-
-  let colAtual = 0;
-  let yEsq = y, yDir = y;
-  let colDivYstart = y;
 
   d.questoes.forEach((q,idx)=>{
-    const cX = colAtual===0 ? col1X : col2X;
-    let cy = colAtual===0 ? yEsq : yDir;
-
-    // Estimar altura da questão (texto + imagens)
-    doc.setFontSize(10);
-    const eLines = doc.splitTextToSize(limpaTags(q.enunciado), colW);
-    const pLines = q.pergunta ? doc.splitTextToSize(limpaTags(q.pergunta), colW) : [];
-    let altH = 0;
-    q.alternativas.forEach(a=>{
-      altH += doc.splitTextToSize(a.texto, colW-9).length*4.5+1.5;
-    });
-    let imgH = 0;
-    (q.imagens||[]).forEach(arq=>{
-      const img=(window._cacheImg||{})[arq];
-      if(img && img.w && img.h){
-        let lw=colW*0.95, lh=lw*(img.h/img.w);
-        if(lh>70){ lh=70; }
-        imgH += lh + 2;
-      }
-    });
-    const qH = 6 + eLines.length*4.5 + pLines.length*4.5 + altH + imgH + 5;
-
-    if(cy+qH > MAX_Y){
-      if(colAtual===0){
-        colAtual=1; cy=yDir; 
-        if(cy+qH>MAX_Y){
-          // Desenhar divisória antes de nova página
-          doc.setDrawColor(...azul); doc.setLineWidth(0.3);
-          doc.line(colDivX, colDivYstart, colDivX, Math.max(yEsq,yDir));
-          desenhaRod(); doc.addPage();
-          desenhaCab();
-          yEsq=CONT_Y; yDir=CONT_Y; colAtual=0;
-          colDivYstart=CONT_Y;
-          cy=CONT_Y;
-        }
-      }else{
-        doc.setDrawColor(...azul); doc.setLineWidth(0.3);
-        doc.line(colDivX, colDivYstart, colDivX, Math.max(yEsq,yDir));
-        desenhaRod(); doc.addPage();
-        desenhaCab();
-        yEsq=CONT_Y; yDir=CONT_Y; colAtual=0;
-        colDivYstart=CONT_Y;
-        cy=CONT_Y;
-      }
-    }
-
-    const colX = colAtual===0 ? col1X : col2X;
-
-    // Número questão
+    // Número da questão (mantém com pelo menos a 1ª linha do enunciado)
+    garantir(12);
     doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(...azul);
-    doc.text('QUESTÃO '+String(idx+1).padStart(2,'0'), colX, cy);
-    cy+=5;
+    doc.text('QUESTÃO '+String(idx+1).padStart(2,'0'), colX[colAtual], cy);
+    cy += 5;
 
-    // Enunciado com imagens inline (igual ao site)
-    cy = renderEnunciadoPDF(q.enunciado, colX, cy, colW);
+    // Enunciado com imagens inline
+    fluirEnunciado(q.enunciado);
+    cy += 2.5;
 
-    // Pergunta (bold) justificada
+    // Pergunta (negrito)
     if(q.pergunta){
-      doc.setFont('times','bold');
+      doc.setFont('times','bold'); doc.setFontSize(10); doc.setTextColor(...preto);
       const pL = doc.splitTextToSize(limpaTags(q.pergunta), colW);
-      doc.text(pL, colX, cy, {maxWidth:colW, align:'justify', lineHeightFactor:1.15});
-      cy += pL.length*4.5 + 1;
+      escreverLinhas(pL, colX[colAtual], 4.5, true);
       doc.setFont('times','normal');
+      cy += 2;
     }
 
     // Alternativas
     q.alternativas.forEach(a=>{
       const aLines = doc.splitTextToSize(a.texto, colW-9);
+      garantir(4.5);
       doc.setFont('times','bold'); doc.setFontSize(10); doc.setTextColor(...azul);
-      doc.text(a.letra+')', colX+1, cy);
+      doc.text(a.letra+')', colX[colAtual]+1, cy);
       doc.setFont('times','normal'); doc.setTextColor(...preto);
       aLines.forEach((line,i)=>{
-        doc.text(line, colX+9, cy, {maxWidth:colW-9, align: i<aLines.length-1?'justify':'left'});
-        cy+=4.5;
+        garantir(4.5);
+        const alinhar = i < aLines.length-1;
+        doc.text(line, colX[colAtual]+9, cy, alinhar ? {maxWidth:colW-9, align:'justify'} : {});
+        cy += 4.5;
       });
-      cy+=0.5;
+      cy += 0.5;
     });
-    cy+=5;
-
-    if(colAtual===0){ yEsq=cy; colAtual=1; }
-    else{ yDir=cy; colAtual=0; }
+    cy += 5; // espaço entre questões
   });
 
   // Linha divisória final entre colunas
   doc.setDrawColor(...azul); doc.setLineWidth(0.3);
-  doc.line(colDivX, colDivYstart, colDivX, Math.max(yEsq,yDir));
+  doc.line(colDivX, colDivYstart, colDivX, MAX_Y);
 
   desenhaRod();
 
