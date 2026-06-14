@@ -534,7 +534,7 @@ async function abrirPreviaFicha(d){
   const CONT_Y = 25.0;
   const ROD_Y  = 291.1;
   const ROD_H  = 5.9;
-  const MAX_Y  = 287.0;
+  const MAX_Y  = 276.0;
   const SEP_Y  = 280.0;
 
   let y = CONT_Y;
@@ -589,7 +589,7 @@ async function abrirPreviaFicha(d){
 
   // Linha 1: UNIDADE | TURMA
   doc.setFont('helvetica','bold'); doc.setFontSize(8.5); doc.setTextColor(...azul);
-  doc.text('UNIDADE SESI:', mL+2, y+5);
+  doc.text('ESCOLA SESI:', mL+2, y+5);
   doc.setFont('helvetica','normal'); doc.setTextColor(...preto);
   doc.text(d.unidade.nome.replace('Escola SESI: ',''), mL+29, y+5);
   doc.setFont('helvetica','bold'); doc.setTextColor(...azul);
@@ -605,7 +605,7 @@ async function abrirPreviaFicha(d){
   doc.setFont('helvetica','bold'); doc.setTextColor(...azul);
   doc.text('DISCIPLINA:', mL+46, y+19);
   doc.setFont('helvetica','normal'); doc.setTextColor(...preto);
-  doc.text(d.disciplina, mL+63, y+19);
+  doc.text(d.disciplina, mL+67, y+19);
   doc.setFont('helvetica','bold'); doc.setTextColor(...azul);
   doc.text('PROFESSOR(A):', W/2+2, y+19);
   doc.setFont('helvetica','normal'); doc.setTextColor(...preto);
@@ -697,6 +697,7 @@ async function abrirPreviaFicha(d){
       doc.line(colDivX, colDivYstart, colDivX, MAX_Y);
       desenhaRod(); doc.addPage(); desenhaCab();
       colAtual=0; colInicioY=CONT_Y; cy=CONT_Y; colDivYstart=CONT_Y;
+      doc.setFont('times','normal'); doc.setFontSize(10); doc.setTextColor(...preto);
     }
   }
   // Garante que há espaço para "needed" mm; se não, troca de coluna
