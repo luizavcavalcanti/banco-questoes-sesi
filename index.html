@@ -682,18 +682,21 @@ async function abrirPreviaFicha(d){
   const colX = [mL, mL+colW+5];
   const colDivX = mL+colW+2.5;
   let colAtual = 0;        // 0 = esquerda, 1 = direita
+  let colInicioY = y;      // onde as colunas começam NA PÁGINA ATUAL (abaixo do cabeçalho/blocos)
   let cy = y;              // cursor vertical da coluna atual
   let colDivYstart = y;
 
   // Avança para a próxima coluna; se já estava na direita, nova página
   function proximaColuna(){
     if(colAtual===0){
-      colAtual=1; cy=CONT_Y;
+      // vai para a coluna direita, no MESMO ponto de início desta página
+      colAtual=1; cy=colInicioY;
     } else {
+      // estava na direita -> nova página (colunas recomeçam no topo do conteúdo)
       doc.setDrawColor(...azul); doc.setLineWidth(0.3);
       doc.line(colDivX, colDivYstart, colDivX, MAX_Y);
       desenhaRod(); doc.addPage(); desenhaCab();
-      colAtual=0; cy=CONT_Y; colDivYstart=CONT_Y;
+      colAtual=0; colInicioY=CONT_Y; cy=CONT_Y; colDivYstart=CONT_Y;
     }
   }
   // Garante que há espaço para "needed" mm; se não, troca de coluna
