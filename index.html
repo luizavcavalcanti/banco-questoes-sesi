@@ -55,6 +55,15 @@ body{font-family:'Montserrat',sans-serif;background:var(--navy);color:var(--whit
 /* CONTADOR */
 .contador{font-size:13px;color:rgba(255,255,255,.55);margin-bottom:18px;padding-left:2px;}
 .contador strong{color:white;}
+/* PAGINAÇÃO */
+.paginacao{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;margin:28px 0 8px;}
+.pag-btn{min-width:38px;height:38px;padding:0 12px;border:1.5px solid rgba(255,255,255,.15);background:rgba(255,255,255,.04);color:rgba(255,255,255,.75);border-radius:9px;font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer;transition:.15s;}
+.pag-btn:hover:not(:disabled){border-color:var(--green-sesi);background:rgba(90,176,48,.12);color:#fff;}
+.pag-btn.ativo{background:var(--blue-sesi);border-color:var(--blue-sesi);color:#fff;}
+.pag-btn:disabled{opacity:.35;cursor:not-allowed;}
+.pag-seta{font-weight:600;}
+.pag-reticencias{color:rgba(255,255,255,.4);padding:0 4px;align-self:flex-end;padding-bottom:8px;}
+@media(max-width:560px){.pag-seta{font-size:0;min-width:38px;padding:0;}.pag-seta::before{font-size:16px;content:attr(data-arrow);}}
 
 /* GRID */
 .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
@@ -372,10 +381,80 @@ function filtrar(){
     const tipoOk = !tipo || q.tipo_prova===tipo || (q.tipo_prova||'').startsWith(tipo+'.') || (q.tipo_prova||'').startsWith(tipo);
     return mb&&discOk&&tipoOk&&segOk;
   });
-  document.getElementById('contador').innerHTML=`Mostrando <strong>${res.length}</strong> ${res.length!==1?'questões':'questão'}`;
+  // guardar resultados e voltar para a primeira página ao filtrar
+  resultadosFiltrados = res;
+  paginaAtual = 1;
+  renderPagina();
+}
+
+// === PAGINAÇÃO ===
+let resultadosFiltrados = [];
+let paginaAtual = 1;
+const POR_PAGINA = 20;
+
+function renderPagina(){
+  const total = resultadosFiltrados.length;
+  const totalPaginas = Math.max(1, Math.ceil(total/POR_PAGINA));
+  if(paginaAtual > totalPaginas) paginaAtual = totalPaginas;
+
+  const inicio = (paginaAtual-1)*POR_PAGINA;
+  const fim = Math.min(inicio+POR_PAGINA, total);
+  const pagina = resultadosFiltrados.slice(inicio, fim);
+
+  // contador
+  const cont = document.getElementById('contador');
+  if(total===0){
+    cont.innerHTML = 'Nenhuma questão encontrada';
+  } else {
+    cont.innerHTML = `Mostrando <strong>${inicio+1}–${fim}</strong> de <strong>${total}</strong> ${total!==1?'questões':'questão'}`;
+  }
+
+  // grid
   const grid=document.getElementById('grid');
-  if(!res.length){grid.innerHTML='<div class="vazio">Nenhuma questão encontrada.</div>';return;}
-  grid.innerHTML=res.map((q,i)=>renderCard(q,i*40)).join('');
+  if(!total){ grid.innerHTML='<div class="vazio">Nenhuma questão encontrada.</div>'; renderControles(0); return; }
+  grid.innerHTML = pagina.map((q,i)=>renderCard(q,i*40)).join('');
+
+  renderControles(totalPaginas);
+  // rolar para o topo do grid ao trocar de página
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function renderControles(totalPaginas){
+  let nav = document.getElementById('paginacao');
+  if(!nav){
+    nav = document.createElement('div');
+    nav.id = 'paginacao';
+    nav.className = 'paginacao';
+    document.getElementById('grid').after(nav);
+  }
+  if(totalPaginas<=1){ nav.innerHTML=''; return; }
+
+  // construir botões de página (com reticências se houver muitas)
+  let botoes = '';
+  const add = (p)=> `<button class="pag-btn${p===paginaAtual?' ativo':''}" onclick="irPagina(${p})">${p}</button>`;
+  const range = [];
+  for(let p=1;p<=totalPaginas;p++){
+    if(p===1||p===totalPaginas||(p>=paginaAtual-2&&p<=paginaAtual+2)) range.push(p);
+  }
+  let anterior=0;
+  range.forEach(p=>{
+    if(p-anterior>1) botoes += '<span class="pag-reticencias">…</span>';
+    botoes += add(p);
+    anterior=p;
+  });
+
+  nav.innerHTML = `
+    <button class="pag-btn pag-seta" onclick="irPagina(${paginaAtual-1})" ${paginaAtual===1?'disabled':''}>‹ Anterior</button>
+    ${botoes}
+    <button class="pag-btn pag-seta" onclick="irPagina(${paginaAtual+1})" ${paginaAtual===totalPaginas?'disabled':''}>Próxima ›</button>
+  `;
+}
+
+function irPagina(p){
+  const totalPaginas = Math.max(1, Math.ceil(resultadosFiltrados.length/POR_PAGINA));
+  if(p<1||p>totalPaginas) return;
+  paginaAtual = p;
+  renderPagina();
 }
 function limpar(){document.getElementById('busca').value='';document.getElementById('sel-disc').value='';document.getElementById('sel-tipo').value='';document.getElementById('sel-seg').value='';filtrar();}
 
