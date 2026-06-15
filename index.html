@@ -800,11 +800,15 @@ async function abrirPreviaFicha(d){
     if(cy + needed > MAX_Y) proximaColuna();
   }
   // Justificação real: distribui palavras manualmente para preencher a largura
+  // Se o espaço extra por lacuna for maior que 3mm, não justifica (evita sobreposição)
   function escreverJustificado(line, x, maxW){
     const palavras = line.split(' ').filter(p => p.length > 0);
     if(palavras.length <= 1){ doc.text(line, x, cy); return; }
     const largTotal = palavras.reduce((acc, p) => acc + doc.getTextWidth(p), 0);
+    const espacoNormal = doc.getTextWidth(' ');
     const espacoExtra = (maxW - largTotal) / (palavras.length - 1);
+    // Se o espaço extra for absurdo (linha muito curta), alinha à esquerda normalmente
+    if(espacoExtra > 3 || espacoExtra < 0){ doc.text(line, x, cy); return; }
     let xAtual = x;
     palavras.forEach(p => {
       doc.text(p, xAtual, cy);
@@ -812,15 +816,12 @@ async function abrirPreviaFicha(d){
     });
   }
   // Escreve linhas com justificação real, quebrando entre colunas se necessário
-  // largDisp é recalculado a cada linha pois a coluna pode mudar após garantir()
   function escreverLinhas(linhas, x, lh, just){
+    // offsetX = distância do início da coluna (0 para corpo, 9 para alternativas)
+    const offsetX = x - colX[0];
     linhas.forEach((line, i) => {
       garantir(lh);
-      // recalcula x e largura relativa à coluna atual (pode ter mudado)
-      const xCur = colX[colAtual] + (x - colX[Math.max(0, colAtual)]);
-      const xReal = colX[colAtual] + (x === colX[0] ? 0 : x === colX[1] ? 0 : (x - colX[colAtual]));
-      // simplificado: usa o offset original relativo ao início da coluna
-      const offsetX = x - colX[0]; // offset fixo (0 para texto normal, 9 para alternativas)
+      // xFinal sempre relativo à coluna atual (corrige após troca de coluna)
       const xFinal = colX[colAtual] + offsetX;
       const largDisp = colW - offsetX;
       const isUltima = i === linhas.length - 1;
@@ -836,9 +837,11 @@ async function abrirPreviaFicha(d){
   function inserirImagem(arq){
     const img=(window._cacheImg||{})[arq];
     if(!img || !img.w || !img.h) return;
-    let lw=colW*0.95, lh=lw*(img.h/img.w);
-    const ALT_MAX=80;
+    let lw=colW*0.85, lh=lw*(img.h/img.w);
+    const ALT_MAX=70;
     if(lh>ALT_MAX){ lh=ALT_MAX; lw=lh*(img.w/img.h); }
+    // Nunca ultrapassa a largura da coluna
+    if(lw > colW-2){ lw=colW-2; lh=lw*(img.h/img.w); }
     garantir(lh+2);
     const ix=colX[colAtual]+(colW-lw)/2;
     try{ doc.addImage(img.data, img.tipo, ix, cy, lw, lh); }catch(e){}
