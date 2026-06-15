@@ -812,15 +812,22 @@ async function abrirPreviaFicha(d){
     });
   }
   // Escreve linhas com justificação real, quebrando entre colunas se necessário
+  // largDisp é recalculado a cada linha pois a coluna pode mudar após garantir()
   function escreverLinhas(linhas, x, lh, just){
-    const largDisp = colW - (x - colX[colAtual]);
     linhas.forEach((line, i) => {
       garantir(lh);
+      // recalcula x e largura relativa à coluna atual (pode ter mudado)
+      const xCur = colX[colAtual] + (x - colX[Math.max(0, colAtual)]);
+      const xReal = colX[colAtual] + (x === colX[0] ? 0 : x === colX[1] ? 0 : (x - colX[colAtual]));
+      // simplificado: usa o offset original relativo ao início da coluna
+      const offsetX = x - colX[0]; // offset fixo (0 para texto normal, 9 para alternativas)
+      const xFinal = colX[colAtual] + offsetX;
+      const largDisp = colW - offsetX;
       const isUltima = i === linhas.length - 1;
       if(just && !isUltima){
-        escreverJustificado(line, x, largDisp);
+        escreverJustificado(line, xFinal, largDisp);
       } else {
-        doc.text(line, x, cy);
+        doc.text(line, xFinal, cy);
       }
       cy += lh;
     });
@@ -856,9 +863,31 @@ async function abrirPreviaFicha(d){
     });
   }
 
+  // Pré-calcula a altura aproximada de uma alternativa (sem imagens) em mm
+  function alturaAlternativa(a){
+    const partes = String(a.texto||'').split(/(\[\s*q[\w.]+\.(?:png|jpe?g)\s*\])/gi);
+    let h = 0;
+    partes.forEach(parte=>{
+      if(parte.match(/\[\s*q[\w.]+\.(?:png|jpe?g)\s*\]/i)){
+        h += 32; // estimativa conservadora para imagem numa alternativa
+      } else {
+        const limpo = parte.replace(/[ \t]{2,}/g,' ').trim();
+        if(limpo){
+          doc.setFontSize(10);
+          const linhas = doc.splitTextToSize(limpo, colW-9);
+          h += linhas.length * 4.5;
+        }
+      }
+    });
+    return Math.max(4.5, h) + 0.5; // +0.5 de espaço entre alternativas
+  }
+
   d.questoes.forEach((q,idx)=>{
-    // Número da questão (mantém com pelo menos a 1ª linha do enunciado)
-    garantir(12);
+    // ── Blindagem 1: título da questão nunca fica sozinho no fim da coluna
+    // Garante espaço para o título + pelo menos 3 linhas de conteúdo
+    garantir(20);
+
+    // Título da questão
     doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(...azul);
     doc.text('QUESTÃO '+String(idx+1).padStart(2,'0'), colX[colAtual], cy);
     cy += 5;
@@ -876,14 +905,20 @@ async function abrirPreviaFicha(d){
       cy += 2;
     }
 
-    // Alternativas (texto e/ou imagem)
+    // ── Blindagem 2: cada alternativa é renderizada como unidade indivisível
+    // Pré-calcula a altura e troca de coluna ANTES de começar, se não couber
     q.alternativas.forEach(a=>{
-      garantir(4.5);
+      // Pré-calcula altura desta alternativa
+      const altH = alturaAlternativa(a);
+      // Se não cabe na coluna atual, troca antes de começar a alternativa
+      if(cy + altH > MAX_Y) proximaColuna();
+
+      // Letra da alternativa — sempre na mesma coluna que o texto
       doc.setFont('times','bold'); doc.setFontSize(10); doc.setTextColor(...azul);
       doc.text(a.letra+')', colX[colAtual]+1, cy);
       doc.setFont('times','normal'); doc.setTextColor(...preto);
-      const cyLetra = cy;
-      // dividir o texto da alternativa em partes (texto e imagens)
+
+      // Partes da alternativa (texto e/ou imagem)
       const partes = String(a.texto||'').split(/(\[\s*q[\w.]+\.(?:png|jpe?g)\s*\])/gi);
       let primeiraLinha = true;
       partes.forEach(parte=>{
@@ -891,11 +926,14 @@ async function abrirPreviaFicha(d){
         if(mImg){
           const img=(window._cacheImg||{})[mImg[1]];
           if(img && img.w && img.h){
+            // ── Blindagem 3: imagem nunca ultrapassa a coluna
+            const ALT_IMG_MAX = Math.min(40, MAX_Y - cy - 4);
             let lw=Math.min(colW-9, 55), lh=lw*(img.h/img.w);
-            if(lh>40){ lh=40; lw=lh*(img.w/img.h); }
-            garantir(lh+2);
-            try{ doc.addImage(img.data, img.tipo, colX[colAtual]+9, cy, lw, lh); }catch(e){}
-            cy += lh+2;
+            if(lh>ALT_IMG_MAX){ lh=ALT_IMG_MAX; lw=lh*(img.w/img.h); }
+            if(lh > 2){ // só insere se couber minimamente
+              try{ doc.addImage(img.data, img.tipo, colX[colAtual]+9, cy, lw, lh); }catch(e){}
+              cy += lh+2;
+            }
             primeiraLinha=false;
           }
         } else {
@@ -907,7 +945,7 @@ async function abrirPreviaFicha(d){
           }
         }
       });
-      if(primeiraLinha){ cy += 4.5; } // alternativa vazia (raro), garante avanço
+      if(primeiraLinha){ cy += 4.5; }
       cy += 0.5;
     });
     cy += 4; // espaço entre questões
