@@ -837,15 +837,17 @@ async function abrirPreviaFicha(d){
   function inserirImagem(arq){
     const img=(window._cacheImg||{})[arq];
     if(!img || !img.w || !img.h) return;
-    let lw=colW*0.85, lh=lw*(img.h/img.w);
-    const ALT_MAX=70;
-    if(lh>ALT_MAX){ lh=ALT_MAX; lw=lh*(img.w/img.h); }
-    // Nunca ultrapassa a largura da coluna
-    if(lw > colW-2){ lw=colW-2; lh=lw*(img.h/img.w); }
-    garantir(lh+2);
-    const ix=colX[colAtual]+(colW-lw)/2;
+    // Largura máxima: 75% da coluna; altura máxima: 55mm
+    let lw = colW * 0.75;
+    let lh = lw * (img.h / img.w);
+    if(lh > 55){ lh = 55; lw = lh * (img.w / img.h); }
+    // Garante que nunca ultrapassa a largura da coluna
+    if(lw > colW - 2){ lw = colW - 2; lh = lw * (img.h / img.w); }
+    // Garante que cabe na coluna verticalmente; se não, troca de coluna
+    garantir(lh + 2);
+    const ix = colX[colAtual] + (colW - lw) / 2;
     try{ doc.addImage(img.data, img.tipo, ix, cy, lw, lh); }catch(e){}
-    cy += lh+2;
+    cy += lh + 2;
   }
   // Renderiza o enunciado com imagens inline, em fluxo
   function fluirEnunciado(texto){
@@ -930,12 +932,13 @@ async function abrirPreviaFicha(d){
           const img=(window._cacheImg||{})[mImg[1]];
           if(img && img.w && img.h){
             // ── Blindagem 3: imagem nunca ultrapassa a coluna
-            const ALT_IMG_MAX = Math.min(40, MAX_Y - cy - 4);
-            let lw=Math.min(colW-9, 55), lh=lw*(img.h/img.w);
-            if(lh>ALT_IMG_MAX){ lh=ALT_IMG_MAX; lw=lh*(img.w/img.h); }
-            if(lh > 2){ // só insere se couber minimamente
+            let lw = colW * 0.65;
+            let lh = lw * (img.h / img.w);
+            if(lh > 35){ lh = 35; lw = lh * (img.w / img.h); }
+            if(lw > colW - 9){ lw = colW - 9; lh = lw * (img.h / img.w); }
+            if(lh > 2){
               try{ doc.addImage(img.data, img.tipo, colX[colAtual]+9, cy, lw, lh); }catch(e){}
-              cy += lh+2;
+              cy += lh + 2;
             }
             primeiraLinha=false;
           }
