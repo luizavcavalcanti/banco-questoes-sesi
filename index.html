@@ -816,12 +816,10 @@ async function abrirPreviaFicha(d){
     });
   }
   // Escreve linhas com justificação real, quebrando entre colunas se necessário
-  function escreverLinhas(linhas, x, lh, just){
-    // offsetX = distância do início da coluna (0 para corpo, 9 para alternativas)
-    const offsetX = x - colX[0];
+  // offsetX: indentação fixa relativa ao início da coluna (0=corpo, 9=alternativas)
+  function escreverLinhas(linhas, offsetX, lh, just){
     linhas.forEach((line, i) => {
       garantir(lh);
-      // xFinal sempre relativo à coluna atual (corrige após troca de coluna)
       const xFinal = colX[colAtual] + offsetX;
       const largDisp = colW - offsetX;
       const isUltima = i === linhas.length - 1;
@@ -862,7 +860,7 @@ async function abrirPreviaFicha(d){
         if(limpo){
           doc.setFont('times','normal'); doc.setFontSize(10); doc.setTextColor(...preto);
           const linhas = doc.splitTextToSize(limpo, colW);
-          escreverLinhas(linhas, colX[colAtual], 4.5, true);
+          escreverLinhas(linhas, 0, 4.5, true);
         }
       }
     });
@@ -905,7 +903,7 @@ async function abrirPreviaFicha(d){
     if(q.pergunta){
       doc.setFont('times','bold'); doc.setFontSize(10); doc.setTextColor(...preto);
       const pL = doc.splitTextToSize(limpaTags(q.pergunta), colW);
-      escreverLinhas(pL, colX[colAtual], 4.5, true);
+      escreverLinhas(pL, 0, 4.5, true);
       doc.setFont('times','normal');
       cy += 2;
     }
@@ -946,7 +944,7 @@ async function abrirPreviaFicha(d){
           const limpo = parte.replace(/[ \t]{2,}/g,' ').trim();
           if(limpo){
             const aLines = doc.splitTextToSize(limpo, colW-9);
-            escreverLinhas(aLines, colX[colAtual]+9, 4.5, true);
+            escreverLinhas(aLines, 9, 4.5, true);
             primeiraLinha=false;
           }
         }
