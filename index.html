@@ -799,12 +799,29 @@ async function abrirPreviaFicha(d){
   function garantir(needed){
     if(cy + needed > MAX_Y) proximaColuna();
   }
-  // Escreve linhas de texto justificadas, quebrando linha a linha entre colunas
+  // Justificação real: distribui palavras manualmente para preencher a largura
+  function escreverJustificado(line, x, maxW){
+    const palavras = line.split(' ').filter(p => p.length > 0);
+    if(palavras.length <= 1){ doc.text(line, x, cy); return; }
+    const largTotal = palavras.reduce((acc, p) => acc + doc.getTextWidth(p), 0);
+    const espacoExtra = (maxW - largTotal) / (palavras.length - 1);
+    let xAtual = x;
+    palavras.forEach(p => {
+      doc.text(p, xAtual, cy);
+      xAtual += doc.getTextWidth(p) + espacoExtra;
+    });
+  }
+  // Escreve linhas com justificação real, quebrando entre colunas se necessário
   function escreverLinhas(linhas, x, lh, just){
-    linhas.forEach((line,i)=>{
+    const largDisp = colW - (x - colX[colAtual]);
+    linhas.forEach((line, i) => {
       garantir(lh);
-      const alinhar = just && i < linhas.length-1;
-      doc.text(line, x, cy, alinhar ? {maxWidth:colW-(x-colX[colAtual]), align:'justify'} : {});
+      const isUltima = i === linhas.length - 1;
+      if(just && !isUltima){
+        escreverJustificado(line, x, largDisp);
+      } else {
+        doc.text(line, x, cy);
+      }
       cy += lh;
     });
   }
@@ -885,12 +902,7 @@ async function abrirPreviaFicha(d){
           const limpo = parte.replace(/[ \t]{2,}/g,' ').trim();
           if(limpo){
             const aLines = doc.splitTextToSize(limpo, colW-9);
-            aLines.forEach((line,i)=>{
-              garantir(4.5);
-              const alinhar = i < aLines.length-1;
-              doc.text(line, colX[colAtual]+9, cy, alinhar ? {maxWidth:colW-9, align:'justify'} : {});
-              cy += 4.5;
-            });
+            escreverLinhas(aLines, colX[colAtual]+9, 4.5, true);
             primeiraLinha=false;
           }
         }
@@ -898,7 +910,7 @@ async function abrirPreviaFicha(d){
       if(primeiraLinha){ cy += 4.5; } // alternativa vazia (raro), garante avanço
       cy += 0.5;
     });
-    cy += 5; // espaço entre questões
+    cy += 4; // espaço entre questões
   });
 
   // Linha divisória final entre colunas
