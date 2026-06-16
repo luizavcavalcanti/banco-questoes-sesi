@@ -90,9 +90,14 @@ body{font-family:'Montserrat',sans-serif;background:var(--navy);color:var(--whit
 .habilidades-topo{display:flex;flex-wrap:wrap;gap:4px;}
 .hab-tag{font-size:9.5px;font-weight:600;background:#f0f4ff;color:#3b5bdb;padding:2px 7px;border-radius:4px;border:1px solid #c5d0e8;letter-spacing:.2px;}
 
-.card-checkbox{width:20px;height:20px;min-width:20px;border:2px solid #7a8aaa;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;background:white;margin-top:2px;}
+.card-sel-wrap{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;margin-top:2px;}
+.card-checkbox{width:20px;height:20px;min-width:20px;border:2px solid #7a8aaa;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;background:white;}
 .card-checkbox.marcada{background:var(--blue-sesi);border-color:var(--blue-sesi);}
 .card-checkbox.marcada::after{content:'✓';color:white;font-size:12px;font-weight:700;}
+.card-sel-label{font-size:9px;font-weight:600;color:#7a8aaa;letter-spacing:.3px;text-transform:uppercase;transition:color .2s;white-space:nowrap;}
+.card-sel-wrap:hover .card-sel-label{color:var(--blue-sesi);}
+.card-sel-wrap:hover .card-checkbox{border-color:var(--blue-sesi);}
+.card-sel-label.marcada{color:var(--blue-sesi);}
 
 .card-num{font-size:10px;font-weight:700;color:var(--gray-text);padding:8px 16px 0;letter-spacing:.5px;text-transform:uppercase;}
 .card-body{padding:10px 16px 14px;flex:1;}
@@ -349,7 +354,10 @@ function renderCard(q,delay){
         <div class="card-tags">${tagProva(q.tipo_prova)} ${tagDisc(q.disciplina)} <span class="tag tag-ano">${q.ano}</span></div>
         <div class="habilidades-topo">${habsHtml}</div>
       </div>
-      <div class="card-checkbox${sel?' marcada':''}" onclick="toggleSel(${q.id})"></div>
+      <div class="card-sel-wrap" onclick="toggleSel(${q.id})">
+        <div class="card-checkbox${sel?' marcada':''}"></div>
+        <span class="card-sel-label${sel?' marcada':''}">${sel?'Selecionada':'Selecionar'}</span>
+      </div>
     </div>
     <div class="card-body">
       ${imgsHtml}
@@ -491,6 +499,8 @@ function toggleSel(num){
     card.classList.toggle('selecionada', marcada);
     const cb=card.querySelector('.card-checkbox');
     if(cb) cb.classList.toggle('marcada', marcada);
+    const lb=card.querySelector('.card-sel-label');
+    if(lb){ lb.classList.toggle('marcada', marcada); lb.textContent=marcada?'Selecionada':'Selecionar'; }
   }
 }
 function atualizarBarraSel(){
