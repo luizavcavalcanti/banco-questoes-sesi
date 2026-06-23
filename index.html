@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Banco de Questões — SESI-PE</title>
+<title>Banco de Questões · SESI-PE</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -179,7 +179,7 @@ body{font-family:'Montserrat',sans-serif;background:var(--navy);color:var(--whit
 
 <main class="main">
   <div class="page-title">
-    <span>Questões de Ciências Humanas</span>
+    <span>Banco de Questões · SESI-PE</span>
     <button class="btn-info" onclick="toggleInfo()">Como usar e submeter questões ▾</button>
   </div>
   <div class="painel-info" id="painel-info">
@@ -196,6 +196,16 @@ body{font-family:'Montserrat',sans-serif;background:var(--navy);color:var(--whit
     <div class="filtro-group">
       <label>Pesquisar</label>
       <input type="text" id="busca" placeholder="Enunciado, habilidade SESI..." oninput="filtrar()">
+    </div>
+    <div class="filtro-group">
+      <label>Área de Conhecimento</label>
+      <select id="sel-area" onchange="atualizarDisciplinas();filtrar()">
+        <option value="">Todas</option>
+        <option>Ciências Humanas</option>
+        <option>Ciências da Natureza</option>
+        <option>Linguagens</option>
+        <option>Matemática</option>
+      </select>
     </div>
     <div class="filtro-group">
       <label>Disciplina</label>
@@ -374,8 +384,21 @@ function renderCard(q,delay){
 /* =====================================================================
    FILTRO / LISTAGEM
    ===================================================================== */
+const DISC_POR_AREA = {
+  'Ciências Humanas': ['História','Geografia','Filosofia','Sociologia'],
+  'Ciências da Natureza': ['Biologia','Física','Química'],
+  'Linguagens': ['Português','Inglês','Artes','Educação Física'],
+  'Matemática': ['Matemática']
+};
+function atualizarDisciplinas(){
+  const area=document.getElementById('sel-area').value;
+  const sel=document.getElementById('sel-disc');
+  const discs = area ? DISC_POR_AREA[area] : Object.values(DISC_POR_AREA).flat();
+  sel.innerHTML='<option value="">Todas</option>'+discs.map(d=>'<option>'+d+'</option>').join('');
+}
 function filtrar(){
   const busca=document.getElementById('busca').value.toLowerCase();
+  const area=document.getElementById('sel-area').value;
   const disc=document.getElementById('sel-disc').value;
   const tipo=document.getElementById('sel-tipo').value;
   const seg=document.getElementById('sel-seg').value;
@@ -385,9 +408,10 @@ function filtrar(){
     (seg==='EM' && (q.habilidades||[]).some(h=>h.includes('.EM')))||
     (seg==='EF9' && (q.habilidades||[]).some(h=>h.match(/\.EF(0[6-9]|[1-9][0-9])/)))||
     (seg==='EF1' && (q.habilidades||[]).some(h=>h.match(/\.EF0[1-5]/)));
+    const areaOk = !area || (q.area||'')===area || DISC_POR_AREA[area]?.some(d=>(q.disciplina||'').split(',').map(s=>s.trim()).includes(d));
     const discOk = !disc || (q.disciplina||'').split(',').map(s=>s.trim()).includes(disc);
     const tipoOk = !tipo || q.tipo_prova===tipo || (q.tipo_prova||'').startsWith(tipo+'.') || (q.tipo_prova||'').startsWith(tipo);
-    return mb&&discOk&&tipoOk&&segOk;
+    return mb&&areaOk&&discOk&&tipoOk&&segOk;
   });
   // guardar resultados e voltar para a primeira página ao filtrar
   resultadosFiltrados = res;
@@ -464,7 +488,7 @@ function irPagina(p){
   paginaAtual = p;
   renderPagina();
 }
-function limpar(){document.getElementById('busca').value='';document.getElementById('sel-disc').value='';document.getElementById('sel-tipo').value='';document.getElementById('sel-seg').value='';filtrar();}
+function limpar(){document.getElementById('busca').value='';document.getElementById('sel-area').value='';atualizarDisciplinas();document.getElementById('sel-disc').value='';document.getElementById('sel-tipo').value='';document.getElementById('sel-seg').value='';filtrar();}
 
 /* =====================================================================
    GABARITO (in-place, sem re-render do grid inteiro)
