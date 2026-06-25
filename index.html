@@ -41,7 +41,9 @@ body{font-family:'Montserrat',sans-serif;background:var(--navy);color:var(--whit
 .filtro-group input::placeholder{color:rgba(255,255,255,.30);}
 .filtro-group input:focus,.filtro-group select:focus{border-color:rgba(255,255,255,.38);}
 .filtro-group select option{background:#162348;color:white;}
-.btn-limpar{background:transparent;border:1px solid rgba(255,255,255,.22);color:rgba(255,255,255,.65);padding:9px 18px;border-radius:8px;font-family:'Montserrat',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap;width:100%;min-width:120px;}
+.filtro-group-limpar{min-width:120px;}
+.filtro-group-limpar label{visibility:hidden;}
+.btn-limpar{background:transparent;border:1px solid rgba(255,255,255,.22);color:rgba(255,255,255,.65);padding:9px 18px;border-radius:8px;font-family:'Montserrat',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap;width:100%;}
 .btn-limpar:hover{background:rgba(255,255,255,.08);color:white;}
 
 /* SELEÇÃO */
@@ -235,7 +237,10 @@ body{font-family:'Montserrat',sans-serif;background:var(--navy);color:var(--whit
         <option value="EF1">Anos Iniciais (EF)</option>
       </select>
     </div>
-    <button class="btn-limpar" onclick="limpar()">Limpar</button>
+    <div class="filtro-group filtro-group-limpar">
+      <label>&nbsp;</label>
+      <button class="btn-limpar" onclick="limpar()">Limpar</button>
+    </div>
   </div>
   <div class="selecao-bar" id="selecao-bar">
     <span class="selecao-info" id="sel-info">0 questões selecionadas</span>
