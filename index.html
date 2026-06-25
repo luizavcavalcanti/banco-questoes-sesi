@@ -26,7 +26,7 @@ body{font-family:'Montserrat',sans-serif;background:var(--navy);color:var(--whit
 .header-friso img{display:none;}
 
 /* MAIN */
-.main{max-width:1320px;margin:0 auto;padding:32px clamp(16px, 4vw, 48px) 80px;}
+.main{max-width:1400px;margin:0 auto;padding:32px clamp(12px, 2vw, 28px) 80px;}
 .page-title{font-size:26px;font-weight:800;color:white;letter-spacing:-.3px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
 .btn-info{font-size:12px;font-weight:600;background:rgba(255,255,255,.10);color:white;border:1px solid rgba(255,255,255,.18);padding:8px 16px;border-radius:8px;cursor:pointer;transition:background .2s;}
 .btn-info:hover{background:rgba(255,255,255,.18);}
@@ -41,9 +41,23 @@ body{font-family:'Montserrat',sans-serif;background:var(--navy);color:var(--whit
 .filtro-group input::placeholder{color:rgba(255,255,255,.30);}
 .filtro-group input:focus,.filtro-group select:focus{border-color:rgba(255,255,255,.38);}
 .filtro-group select option{background:#162348;color:white;}
-.filtro-group-limpar{min-width:120px;}
+.filtro-group-limpar{min-width:130px;}
 .filtro-group-limpar label{visibility:hidden;}
-.btn-limpar{background:transparent;border:1px solid rgba(255,255,255,.22);color:rgba(255,255,255,.65);padding:9px 18px;border-radius:8px;font-family:'Montserrat',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap;width:100%;}
+.btn-limpar{background:rgba(255,255,255,.10);border:1.5px solid rgba(255,255,255,.45);color:white;padding:9px 18px;border-radius:8px;font-family:'Montserrat',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap;width:100%;}
+.btn-limpar:hover{background:rgba(255,255,255,.20);border-color:white;}
+
+/* MULTI-SELECT DROPDOWN (Área / Disciplina) */
+.multi-select{position:relative;width:100%;}
+.multi-select-btn{width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:8px;color:white;font-family:'Montserrat',sans-serif;font-size:13px;font-weight:500;padding:9px 12px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px;transition:border-color .2s;text-align:left;}
+.multi-select-btn:hover,.multi-select.open .multi-select-btn{border-color:rgba(255,255,255,.38);}
+.multi-select-btn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ms-arrow{flex-shrink:0;color:rgba(255,255,255,.55);transition:transform .2s;}
+.multi-select.open .ms-arrow{transform:rotate(180deg);color:white;}
+.multi-select-panel{display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;background:#162348;border:1px solid rgba(255,255,255,.18);border-radius:8px;padding:8px;box-shadow:0 8px 24px rgba(0,0,0,.35);z-index:50;max-height:240px;overflow-y:auto;}
+.multi-select.open .multi-select-panel{display:block;}
+.ms-option{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:6px;cursor:pointer;font-size:13px;color:rgba(255,255,255,.85);transition:background .15s;}
+.ms-option:hover{background:rgba(255,255,255,.08);}
+.ms-option input[type="checkbox"]{width:15px;height:15px;accent-color:var(--blue-sesi);cursor:pointer;flex-shrink:0;}
 .btn-limpar:hover{background:rgba(255,255,255,.08);color:white;}
 
 /* SELEÇÃO */
@@ -68,7 +82,7 @@ body{font-family:'Montserrat',sans-serif;background:var(--navy);color:var(--whit
 @media(max-width:560px){.pag-seta{font-size:0;min-width:38px;padding:0;}.pag-seta::before{font-size:16px;content:attr(data-arrow);}}
 
 /* GRID */
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:28px;}
 
 /* CARD */
 .card{background:white;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);transition:box-shadow .25s,transform .25s;display:flex;flex-direction:column;animation:fadeUp .35s ease both;}
@@ -201,23 +215,28 @@ body{font-family:'Montserrat',sans-serif;background:var(--navy);color:var(--whit
     </div>
     <div class="filtro-group">
       <label>Área de Conhecimento</label>
-      <select id="sel-area" onchange="atualizarDisciplinas();filtrar()">
-        <option value="">Todas</option>
-        <option>Ciências Humanas</option>
-        <option>Ciências da Natureza</option>
-        <option>Linguagens</option>
-        <option>Matemática</option>
-      </select>
+      <div class="multi-select" id="ms-area">
+        <button type="button" class="multi-select-btn" onclick="toggleMultiSelect('ms-area')">
+          <span id="ms-area-label">Todas</span>
+          <svg class="ms-arrow" width="11" height="7" viewBox="0 0 11 7" fill="none"><path d="M1 1L5.5 5.5L10 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="multi-select-panel" id="ms-area-panel">
+          <label class="ms-option"><input type="checkbox" value="Ciências Humanas" onchange="onAreaChange()"> Ciências Humanas</label>
+          <label class="ms-option"><input type="checkbox" value="Ciências da Natureza" onchange="onAreaChange()"> Ciências da Natureza</label>
+          <label class="ms-option"><input type="checkbox" value="Linguagens" onchange="onAreaChange()"> Linguagens</label>
+          <label class="ms-option"><input type="checkbox" value="Matemática" onchange="onAreaChange()"> Matemática</label>
+        </div>
+      </div>
     </div>
     <div class="filtro-group">
       <label>Disciplina</label>
-      <select id="sel-disc" onchange="filtrar()">
-        <option value="">Todas</option>
-        <option>História</option>
-        <option>Geografia</option>
-        <option>Filosofia</option>
-        <option>Sociologia</option>
-      </select>
+      <div class="multi-select" id="ms-disc">
+        <button type="button" class="multi-select-btn" onclick="toggleMultiSelect('ms-disc')">
+          <span id="ms-disc-label">Todas</span>
+          <svg class="ms-arrow" width="11" height="7" viewBox="0 0 11 7" fill="none"><path d="M1 1L5.5 5.5L10 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="multi-select-panel" id="ms-disc-panel"></div>
+      </div>
     </div>
     <div class="filtro-group">
       <label>Tipo de questão</label>
@@ -239,7 +258,7 @@ body{font-family:'Montserrat',sans-serif;background:var(--navy);color:var(--whit
     </div>
     <div class="filtro-group filtro-group-limpar">
       <label>&nbsp;</label>
-      <button class="btn-limpar" onclick="limpar()">Limpar</button>
+      <button class="btn-limpar" onclick="limpar()">Limpar filtros</button>
     </div>
   </div>
   <div class="selecao-bar" id="selecao-bar">
@@ -395,16 +414,54 @@ const DISC_POR_AREA = {
   'Linguagens': ['Português','Inglês','Artes','Educação Física'],
   'Matemática': ['Matemática']
 };
-function atualizarDisciplinas(){
-  const area=document.getElementById('sel-area').value;
-  const sel=document.getElementById('sel-disc');
-  const discs = area ? DISC_POR_AREA[area] : Object.values(DISC_POR_AREA).flat();
-  sel.innerHTML='<option value="">Todas</option>'+discs.map(d=>'<option>'+d+'</option>').join('');
+const TODAS_DISCIPLINAS = Object.values(DISC_POR_AREA).flat();
+
+// Estado dos multi-selects: arrays de valores marcados
+let areasSelecionadas = [];
+let discsSelecionadas = [];
+
+// Abre/fecha um dropdown multi-select, fechando os outros
+function toggleMultiSelect(id){
+  const el = document.getElementById(id);
+  const estavaAberto = el.classList.contains('open');
+  document.querySelectorAll('.multi-select.open').forEach(m=>m.classList.remove('open'));
+  if(!estavaAberto) el.classList.add('open');
 }
+// Fecha os dropdowns ao clicar fora
+document.addEventListener('click', function(e){
+  if(!e.target.closest('.multi-select')){
+    document.querySelectorAll('.multi-select.open').forEach(m=>m.classList.remove('open'));
+  }
+});
+
+// Preenche o painel de Disciplina sempre com TODAS as disciplinas (independente da área)
+function montarPainelDisciplinas(){
+  const panel = document.getElementById('ms-disc-panel');
+  panel.innerHTML = TODAS_DISCIPLINAS.map(d=>
+    '<label class="ms-option"><input type="checkbox" value="'+d+'" onchange="onDiscChange()"> '+d+'</label>'
+  ).join('');
+}
+
+function atualizarLabelMultiSelect(id, selecionadas, labelTodos){
+  const span = document.getElementById(id+'-label');
+  if(selecionadas.length===0) span.textContent = labelTodos;
+  else if(selecionadas.length===1) span.textContent = selecionadas[0];
+  else span.textContent = selecionadas.length+' selecionadas';
+}
+
+function onAreaChange(){
+  areasSelecionadas = Array.from(document.querySelectorAll('#ms-area-panel input:checked')).map(c=>c.value);
+  atualizarLabelMultiSelect('ms-area', areasSelecionadas, 'Todas');
+  filtrar();
+}
+function onDiscChange(){
+  discsSelecionadas = Array.from(document.querySelectorAll('#ms-disc-panel input:checked')).map(c=>c.value);
+  atualizarLabelMultiSelect('ms-disc', discsSelecionadas, 'Todas');
+  filtrar();
+}
+
 function filtrar(){
   const busca=document.getElementById('busca').value.toLowerCase();
-  const area=document.getElementById('sel-area').value;
-  const disc=document.getElementById('sel-disc').value;
   const tipo=document.getElementById('sel-tipo').value;
   const seg=document.getElementById('sel-seg').value;
   const res=QUESTOES.filter(q=>{
@@ -413,8 +470,14 @@ function filtrar(){
     (seg==='EM' && (q.habilidades||[]).some(h=>h.includes('.EM')))||
     (seg==='EF9' && (q.habilidades||[]).some(h=>h.match(/\.EF(0[6-9]|[1-9][0-9])/)))||
     (seg==='EF1' && (q.habilidades||[]).some(h=>h.match(/\.EF0[1-5]/)));
-    const areaOk = !area || (q.area||'')===area || DISC_POR_AREA[area]?.some(d=>(q.disciplina||'').split(',').map(s=>s.trim()).includes(d));
-    const discOk = !disc || (q.disciplina||'').split(',').map(s=>s.trim()).includes(disc);
+    const discsQ = (q.disciplina||'').split(',').map(s=>s.trim());
+    // Área: questão passa se a área dela bater com QUALQUER área marcada,
+    // OU se alguma disciplina da questão pertencer a uma das áreas marcadas
+    const areaOk = areasSelecionadas.length===0 || areasSelecionadas.some(a =>
+      (q.area||'')===a || (DISC_POR_AREA[a]||[]).some(d=>discsQ.includes(d))
+    );
+    // Disciplina: questão passa se tiver QUALQUER uma das disciplinas marcadas
+    const discOk = discsSelecionadas.length===0 || discsSelecionadas.some(d=>discsQ.includes(d));
     const tipoOk = !tipo || q.tipo_prova===tipo || (q.tipo_prova||'').startsWith(tipo+'.') || (q.tipo_prova||'').startsWith(tipo);
     return mb&&areaOk&&discOk&&tipoOk&&segOk;
   });
@@ -493,7 +556,17 @@ function irPagina(p){
   paginaAtual = p;
   renderPagina();
 }
-function limpar(){document.getElementById('busca').value='';document.getElementById('sel-area').value='';atualizarDisciplinas();document.getElementById('sel-disc').value='';document.getElementById('sel-tipo').value='';document.getElementById('sel-seg').value='';filtrar();}
+function limpar(){
+  document.getElementById('busca').value='';
+  document.querySelectorAll('#ms-area-panel input').forEach(c=>c.checked=false);
+  document.querySelectorAll('#ms-disc-panel input').forEach(c=>c.checked=false);
+  areasSelecionadas=[]; discsSelecionadas=[];
+  atualizarLabelMultiSelect('ms-area', areasSelecionadas, 'Todas');
+  atualizarLabelMultiSelect('ms-disc', discsSelecionadas, 'Todas');
+  document.getElementById('sel-tipo').value='';
+  document.getElementById('sel-seg').value='';
+  filtrar();
+}
 
 /* =====================================================================
    GABARITO (in-place, sem re-render do grid inteiro)
@@ -1059,6 +1132,7 @@ async function carregarBanco(){
     if(!resp.ok) throw new Error('HTTP '+resp.status);
     const dados=await resp.json();
     QUESTOES=dados.map(normalizarQuestao);
+    montarPainelDisciplinas();
     filtrar();
   }catch(e){
     grid.innerHTML='<div class="vazio">Não foi possível carregar o banco de questões.<br><small>'+e.message+'</small></div>';
