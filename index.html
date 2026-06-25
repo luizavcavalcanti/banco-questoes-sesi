@@ -26,7 +26,7 @@ body{font-family:'Montserrat',sans-serif;background:var(--navy);color:var(--whit
 .header-friso img{display:none;}
 
 /* MAIN */
-.main{max-width:1400px;margin:0 auto;padding:32px clamp(12px, 2vw, 28px) 80px;}
+.main{max-width:1180px;margin:0 auto;padding:32px clamp(12px, 2vw, 28px) 80px;}
 .page-title{font-size:26px;font-weight:800;color:white;letter-spacing:-.3px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
 .btn-info{font-size:12px;font-weight:600;background:rgba(255,255,255,.10);color:white;border:1px solid rgba(255,255,255,.18);padding:8px 16px;border-radius:8px;cursor:pointer;transition:background .2s;}
 .btn-info:hover{background:rgba(255,255,255,.18);}
@@ -58,6 +58,18 @@ body{font-family:'Montserrat',sans-serif;background:var(--navy);color:var(--whit
 .ms-option{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:6px;cursor:pointer;font-size:13px;color:rgba(255,255,255,.85);transition:background .15s;}
 .ms-option:hover{background:rgba(255,255,255,.08);}
 .ms-option input[type="checkbox"]{width:15px;height:15px;accent-color:var(--blue-sesi);cursor:pointer;flex-shrink:0;}
+
+/* Item de Área com setinha de expansão (sub-lista de disciplinas) */
+.ms-area-item{border-radius:6px;}
+.ms-area-row{display:flex;align-items:center;gap:6px;padding:7px 4px 7px 8px;border-radius:6px;}
+.ms-area-row:hover{background:rgba(255,255,255,.06);}
+.ms-area-row label{display:flex;align-items:center;gap:8px;flex:1;cursor:pointer;font-size:13px;color:rgba(255,255,255,.85);}
+.ms-area-toggle{background:none;border:none;color:rgba(255,255,255,.45);cursor:pointer;padding:4px 6px;display:flex;align-items:center;transition:transform .2s, color .2s;flex-shrink:0;}
+.ms-area-toggle:hover{color:white;}
+.ms-area-toggle.expanded{transform:rotate(180deg);color:white;}
+.ms-disc-sublist{display:none;padding-left:22px;margin:2px 0 4px 0;border-left:2px solid rgba(255,255,255,.12);}
+.ms-disc-sublist.expanded{display:block;}
+.ms-disc-sublist .ms-option{font-size:12.5px;padding:5px 8px;color:rgba(255,255,255,.70);}
 .btn-limpar:hover{background:rgba(255,255,255,.08);color:white;}
 
 /* SELEÇÃO */
@@ -214,28 +226,13 @@ body{font-family:'Montserrat',sans-serif;background:var(--navy);color:var(--whit
       <input type="text" id="busca" placeholder="Enunciado, habilidade SESI..." oninput="filtrar()">
     </div>
     <div class="filtro-group">
-      <label>Área de Conhecimento</label>
+      <label>Área de Conhecimento / Disciplina</label>
       <div class="multi-select" id="ms-area">
         <button type="button" class="multi-select-btn" onclick="toggleMultiSelect('ms-area')">
           <span id="ms-area-label">Todas</span>
           <svg class="ms-arrow" width="11" height="7" viewBox="0 0 11 7" fill="none"><path d="M1 1L5.5 5.5L10 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
-        <div class="multi-select-panel" id="ms-area-panel">
-          <label class="ms-option"><input type="checkbox" value="Ciências Humanas" onchange="onAreaChange()"> Ciências Humanas</label>
-          <label class="ms-option"><input type="checkbox" value="Ciências da Natureza" onchange="onAreaChange()"> Ciências da Natureza</label>
-          <label class="ms-option"><input type="checkbox" value="Linguagens" onchange="onAreaChange()"> Linguagens</label>
-          <label class="ms-option"><input type="checkbox" value="Matemática" onchange="onAreaChange()"> Matemática</label>
-        </div>
-      </div>
-    </div>
-    <div class="filtro-group">
-      <label>Disciplina</label>
-      <div class="multi-select" id="ms-disc">
-        <button type="button" class="multi-select-btn" onclick="toggleMultiSelect('ms-disc')">
-          <span id="ms-disc-label">Todas</span>
-          <svg class="ms-arrow" width="11" height="7" viewBox="0 0 11 7" fill="none"><path d="M1 1L5.5 5.5L10 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-        <div class="multi-select-panel" id="ms-disc-panel"></div>
+        <div class="multi-select-panel" id="ms-area-panel"></div>
       </div>
     </div>
     <div class="filtro-group">
@@ -258,7 +255,7 @@ body{font-family:'Montserrat',sans-serif;background:var(--navy);color:var(--whit
     </div>
     <div class="filtro-group filtro-group-limpar">
       <label>&nbsp;</label>
-      <button class="btn-limpar" onclick="limpar()">Limpar filtros</button>
+      <button class="btn-limpar" onclick="limpar()">Limpar</button>
     </div>
   </div>
   <div class="selecao-bar" id="selecao-bar">
@@ -416,7 +413,7 @@ const DISC_POR_AREA = {
 };
 const TODAS_DISCIPLINAS = Object.values(DISC_POR_AREA).flat();
 
-// Estado dos multi-selects: arrays de valores marcados
+// Estado do filtro: áreas e disciplinas são marcações INDEPENDENTES (não hierárquicas)
 let areasSelecionadas = [];
 let discsSelecionadas = [];
 
@@ -434,29 +431,51 @@ document.addEventListener('click', function(e){
   }
 });
 
-// Preenche o painel de Disciplina sempre com TODAS as disciplinas (independente da área)
-function montarPainelDisciplinas(){
-  const panel = document.getElementById('ms-disc-panel');
-  panel.innerHTML = TODAS_DISCIPLINAS.map(d=>
-    '<label class="ms-option"><input type="checkbox" value="'+d+'" onchange="onDiscChange()"> '+d+'</label>'
-  ).join('');
+// Expande/recolhe a sub-lista de disciplinas de UMA área (não afeta os checkboxes)
+function toggleAreaDisciplinas(area, ev){
+  ev.stopPropagation();
+  const sub = document.getElementById('sub-'+area);
+  const btn = ev.currentTarget;
+  const abrir = !sub.classList.contains('expanded');
+  sub.classList.toggle('expanded', abrir);
+  btn.classList.toggle('expanded', abrir);
 }
 
-function atualizarLabelMultiSelect(id, selecionadas, labelTodos){
-  const span = document.getElementById(id+'-label');
-  if(selecionadas.length===0) span.textContent = labelTodos;
-  else if(selecionadas.length===1) span.textContent = selecionadas[0];
-  else span.textContent = selecionadas.length+' selecionadas';
+// Monta o painel único: cada área com checkbox próprio + setinha + sub-lista de disciplinas
+function montarPainelAreaDisciplina(){
+  const panel = document.getElementById('ms-area-panel');
+  panel.innerHTML = Object.keys(DISC_POR_AREA).map(area=>{
+    const discs = DISC_POR_AREA[area];
+    const idArea = area.replace(/\s/g,'_');
+    return `
+      <div class="ms-area-item">
+        <div class="ms-area-row">
+          <label><input type="checkbox" class="chk-area" value="${area}" onchange="onFiltroAreaDiscChange()"> ${area}</label>
+          <button type="button" class="ms-area-toggle" onclick="toggleAreaDisciplinas('${idArea}', event)">
+            <svg width="10" height="6" viewBox="0 0 11 7" fill="none"><path d="M1 1L5.5 5.5L10 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+        <div class="ms-disc-sublist" id="sub-${idArea}">
+          ${discs.map(d=>'<label class="ms-option"><input type="checkbox" class="chk-disc" value="'+d+'" onchange="onFiltroAreaDiscChange()"> '+d+'</label>').join('')}
+        </div>
+      </div>`;
+  }).join('');
 }
 
-function onAreaChange(){
-  areasSelecionadas = Array.from(document.querySelectorAll('#ms-area-panel input:checked')).map(c=>c.value);
-  atualizarLabelMultiSelect('ms-area', areasSelecionadas, 'Todas');
-  filtrar();
+function atualizarLabelAreaDisc(){
+  const span = document.getElementById('ms-area-label');
+  const totalArea = areasSelecionadas.length;
+  const totalDisc = discsSelecionadas.length;
+  const total = totalArea + totalDisc;
+  if(total===0){ span.textContent = 'Todas'; return; }
+  if(total===1){ span.textContent = areasSelecionadas[0] || discsSelecionadas[0]; return; }
+  span.textContent = total+' selecionadas';
 }
-function onDiscChange(){
-  discsSelecionadas = Array.from(document.querySelectorAll('#ms-disc-panel input:checked')).map(c=>c.value);
-  atualizarLabelMultiSelect('ms-disc', discsSelecionadas, 'Todas');
+
+function onFiltroAreaDiscChange(){
+  areasSelecionadas = Array.from(document.querySelectorAll('.chk-area:checked')).map(c=>c.value);
+  discsSelecionadas = Array.from(document.querySelectorAll('.chk-disc:checked')).map(c=>c.value);
+  atualizarLabelAreaDisc();
   filtrar();
 }
 
@@ -559,10 +578,10 @@ function irPagina(p){
 function limpar(){
   document.getElementById('busca').value='';
   document.querySelectorAll('#ms-area-panel input').forEach(c=>c.checked=false);
-  document.querySelectorAll('#ms-disc-panel input').forEach(c=>c.checked=false);
   areasSelecionadas=[]; discsSelecionadas=[];
-  atualizarLabelMultiSelect('ms-area', areasSelecionadas, 'Todas');
-  atualizarLabelMultiSelect('ms-disc', discsSelecionadas, 'Todas');
+  atualizarLabelAreaDisc();
+  document.querySelectorAll('.ms-disc-sublist.expanded').forEach(s=>s.classList.remove('expanded'));
+  document.querySelectorAll('.ms-area-toggle.expanded').forEach(b=>b.classList.remove('expanded'));
   document.getElementById('sel-tipo').value='';
   document.getElementById('sel-seg').value='';
   filtrar();
@@ -1132,7 +1151,7 @@ async function carregarBanco(){
     if(!resp.ok) throw new Error('HTTP '+resp.status);
     const dados=await resp.json();
     QUESTOES=dados.map(normalizarQuestao);
-    montarPainelDisciplinas();
+    montarPainelAreaDisciplina();
     filtrar();
   }catch(e){
     grid.innerHTML='<div class="vazio">Não foi possível carregar o banco de questões.<br><small>'+e.message+'</small></div>';
