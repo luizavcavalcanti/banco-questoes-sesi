@@ -53,9 +53,9 @@ body{font-family:'Montserrat',sans-serif;background:var(--navy);color:var(--whit
 .multi-select-btn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .ms-arrow{flex-shrink:0;color:rgba(255,255,255,.55);transition:transform .2s;}
 .multi-select.open .ms-arrow{transform:rotate(180deg);color:white;}
-.multi-select-panel{display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;background:#162348;border:1px solid rgba(255,255,255,.18);border-radius:8px;padding:8px;box-shadow:0 8px 24px rgba(0,0,0,.35);z-index:50;max-height:240px;overflow-y:auto;}
+.multi-select-panel{display:none;position:absolute;top:calc(100% + 6px);left:0;min-width:100%;width:max-content;max-width:340px;background:#162348;border:1px solid rgba(255,255,255,.18);border-radius:8px;padding:8px;box-shadow:0 8px 24px rgba(0,0,0,.35);z-index:50;max-height:240px;overflow-y:auto;}
 .multi-select.open .multi-select-panel{display:block;}
-.ms-option{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:6px;cursor:pointer;font-size:13px;color:rgba(255,255,255,.85);transition:background .15s;}
+.ms-option{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:6px;cursor:pointer;font-size:13px;color:rgba(255,255,255,.85);transition:background .15s;white-space:nowrap;}
 .ms-option:hover{background:rgba(255,255,255,.08);}
 .ms-option input[type="checkbox"]{width:15px;height:15px;accent-color:var(--blue-sesi);cursor:pointer;flex-shrink:0;}
 
@@ -63,7 +63,7 @@ body{font-family:'Montserrat',sans-serif;background:var(--navy);color:var(--whit
 .ms-area-item{border-radius:6px;}
 .ms-area-row{display:flex;align-items:center;gap:6px;padding:7px 4px 7px 8px;border-radius:6px;}
 .ms-area-row:hover{background:rgba(255,255,255,.06);}
-.ms-area-row label{display:flex;align-items:center;gap:8px;flex:1;cursor:pointer;font-size:13px;color:rgba(255,255,255,.85);}
+.ms-area-row label{display:flex;align-items:center;gap:8px;flex:1;cursor:pointer;font-size:13px;color:rgba(255,255,255,.85);white-space:nowrap;}
 .ms-area-toggle{background:none;border:none;color:rgba(255,255,255,.45);cursor:pointer;padding:4px 6px;display:flex;align-items:center;transition:transform .2s, color .2s;flex-shrink:0;}
 .ms-area-toggle:hover{color:white;}
 .ms-area-toggle.expanded{transform:rotate(180deg);color:white;}
