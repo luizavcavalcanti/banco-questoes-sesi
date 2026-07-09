@@ -319,9 +319,17 @@ body{font-family:'Montserrat',sans-serif;background:var(--navy);color:var(--whit
   </div>
 </div>
 
+<script type="module">
+  // Conexão com o Supabase (leitura pública das questões aprovadas).
+  // A chave publishable pode ficar aqui: o RLS só permite ler questões com status='aprovada'.
+  import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+  const SUPABASE_URL = "https://vyyjmcaefmhuevzazfjs.supabase.co";
+  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_wix1554y5fB1cFXSoU7NMA_qGDquzFJ";
+  window.__sb = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+</script>
 <script>
-let QUESTOES=[];           // carregado de questoes.json
-const IMGS={};             // imagens agora vêm da pasta imagens/ por nome de arquivo
+let QUESTOES=[];           // carregado do Supabase (tabela questoes)
+const IMGS={};             // imagens: URL completa (Storage) OU nome de arquivo (pasta imagens/)
 
 /* =====================================================================
    UNIDADES SESI-PE
@@ -353,20 +361,27 @@ function tagProva(t){const base=(t||'').split('.')[0];const m={ENEM:'tag-enem',S
 function tagDisc(d){const m={História:'tag-hist',Geografia:'tag-geo',Filosofia:'tag-fil',Sociologia:'tag-soc'};return (d||'').split(',').map(s=>s.trim()).filter(Boolean).map(x=>`<span class="tag ${m[x]||'tag-hist'}">${x}</span>`).join(' ');}
 
 /* =====================================================================
-   RENDER CARD  (imagens por nome de arquivo OU base64)
+   RENDER CARD  (imagens: URL completa do Storage OU nome de arquivo)
    ===================================================================== */
-function imgTag(arquivo){
-  // arquivo já vem com extensão correta (ex: q042.jpg, q001.png)
-  return `<img src="imagens/${arquivo}" class="card-img" alt="" loading="lazy" onerror="this.style.display='none'">`;
+// Decide a origem da imagem:
+//  - URL completa (http...) -> usa direto (imagens novas no Supabase Storage)
+//  - nome de arquivo (q001.png) -> prefixa imagens/ (imagens antigas no GitHub)
+function resolverSrc(ref){
+  const r=String(ref||'').trim();
+  if(/^https?:\/\//i.test(r)) return r;      // já é URL completa
+  return 'imagens/'+r;                        // nome de arquivo -> pasta local
 }
-// Converte o enunciado: tags [q001.png] viram imagens no lugar exato
+function imgTag(arquivo){
+  return `<img src="${resolverSrc(arquivo)}" class="card-img" alt="" loading="lazy" onerror="this.style.display='none'">`;
+}
+// Converte o enunciado: tags [q001.png] OU [https://...png] viram imagens no lugar exato
 function renderEnunciado(texto){
   if(!texto) return '';
   // escapar HTML básico antes (evita injeção), preservando quebras
   let t = texto
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  // substituir tags de imagem [arquivo.ext] por <img>
-  t = t.replace(/\[\s*(q[\w.]+\.(?:png|jpe?g))\s*\]/gi, (m,arq)=> imgTag(arq));
+  // substituir tags de imagem: aceita nome de arquivo OU URL completa dentro dos colchetes
+  t = t.replace(/\[\s*(https?:\/\/[^\]\s]+?\.(?:png|jpe?g|webp)|q[\w.]+\.(?:png|jpe?g))\s*\]/gi, (m,arq)=> imgTag(arq));
   // quebras de linha -> <br> (parágrafos duplos viram espaçamento)
   t = t.replace(/\n{2,}/g,'</p><p class="enunciado">').replace(/\n/g,'<br>');
   return t;
@@ -375,7 +390,7 @@ function renderCard(q,delay){
   const sel=selecionadas.has(q.id), gabRev=gabaritosRevelados.has(q.id);
   // imagens "soltas" (caso o enunciado não tenha a tag inline) — fallback
   let imgsHtml='';
-  const enunTemTag=/\[\s*q[\w.]+\.(?:png|jpe?g)\s*\]/i.test(q.enunciado||'');
+  const enunTemTag=/\[\s*(?:https?:\/\/[^\]\s]+?\.(?:png|jpe?g|webp)|q[\w.]+\.(?:png|jpe?g))\s*\]/i.test(q.enunciado||'');
   if(!enunTemTag){
     (q.imagens||[]).forEach(arq=>{ imgsHtml+=imgTag(arq); });
   }
@@ -697,14 +712,15 @@ const _CAB_B64 = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgI
 const _ROD_B64 = 'data:image/jpeg;base64,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E35W/wD8cr8+qKP+ImcUfzR/8BD/AFlzPuvuP0F/4e8/Bv8A6Jt4m/K3/wDjlH/D3n4N/wDRNvE35W//AMcr8+qKP+ImcUfzR/8AAQ/1lzPuvuP0F/4e8/Bv/om3ib8rf/45R/w95+Df/RNvE35W/wD8cr8+qKP+ImcUfzR/8BD/AFlzPuvuP0F/4e8/Bv8A6Jt4m/K3/wDjlH/D3n4N/wDRNvE35W//AMcr8+qKP+ImcUfzR/8AAQ/1lzPuvuP0F/4e8/Bv/om3ib8rf/45R/w95+Df/RNvE35W/wD8cr8+qKP+ImcUfzR/8BD/AFlzPuvuP0F/4e8/Bv8A6Jt4m/K3/wDjlH/D3n4N/wDRNvE35W//AMcr8+qKP+ImcUfzR/8AAQ/1lzPuvuP0F/4e8/Bv/om3ib8rf/45RX59UUf8RM4o/mj/AOAh/rLmfdfcfen/AAWA/wCRB8I/9haf/wBFCvguvvT/AILAf8iD4R/7C0//AKKFfBdY+JP/ACVVX/t3/wBJI4i/5G8v66BRRRXwh4YUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFAH3p/wAFgP8AkQfCP/YWn/8ARQr4Loor7vxJ/wCSqq/9u/8ApJ7nEX/I3l/XQKKKK+EPDCiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA/9k=';
 
 async function carregarImagem(arquivo){
-  // Carrega imagem da pasta imagens/ como dataURL para o jsPDF
+  // Carrega imagem (URL do Storage OU nome na pasta imagens/) como dataURL para o jsPDF
   try{
-    const resp=await fetch('imagens/'+arquivo,{cache:'force-cache'});
+    const resp=await fetch(resolverSrc(arquivo),{cache:'force-cache'});
     if(!resp.ok) return null;
     const blob=await resp.blob();
+    const ehPng=/\.png(\?|$)/i.test(String(arquivo));
     return await new Promise((res)=>{
       const fr=new FileReader();
-      fr.onload=()=>res({data:fr.result, tipo:(arquivo.toLowerCase().endsWith('.png')?'PNG':'JPEG')});
+      fr.onload=()=>res({data:fr.result, tipo:(ehPng?'PNG':'JPEG')});
       fr.onerror=()=>res(null);
       fr.readAsDataURL(blob);
     });
@@ -723,7 +739,7 @@ async function abrirPreviaFicha(d){
   // Pré-carregar todas as imagens das questões selecionadas
   // (de q.imagens E das tags [qXXX.ext] no enunciado e nas alternativas)
   const cacheImg={};
-  const tagImg=/\[\s*(q[\w.]+\.(?:png|jpe?g))\s*\]/gi;
+  const tagImg=/\[\s*(https?:\/\/[^\]\s]+?\.(?:png|jpe?g|webp)|q[\w.]+\.(?:png|jpe?g))\s*\]/gi;
   function coletarArquivos(q){
     const arquivos=new Set(q.imagens||[]);
     let m;
@@ -753,7 +769,7 @@ async function abrirPreviaFicha(d){
   const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
 
   // Remove marcadores de imagem [qXXX.png] do texto para o PDF (imagens não embarcam na ficha de teste)
-  const limpaTags = (s)=> (s||'').replace(/\[\s*q[\w.]+\.(?:png|jpe?g)\s*\]/gi,'').replace(/\n{2,}/g,'\n').replace(/[ \t]{2,}/g,' ').trim();
+  const limpaTags = (s)=> (s||'').replace(/\[\s*(?:https?:\/\/[^\]\s]+?\.(?:png|jpe?g|webp)|q[\w.]+\.(?:png|jpe?g))\s*\]/gi,'').replace(/\n{2,}/g,'\n').replace(/[ \t]{2,}/g,' ').trim();
 
 
   const W=210, H=297;
@@ -1152,18 +1168,31 @@ async function carregarBanco(){
   const grid=document.getElementById('grid');
   grid.innerHTML='<div class="vazio">Carregando questões…</div>';
   try{
-    const resp=await fetch('questoes.json',{cache:'no-cache'});
-    if(!resp.ok) throw new Error('HTTP '+resp.status);
-    const dados=await resp.json();
-    QUESTOES=dados.map(normalizarQuestao);
+    const sb = window.__sb;
+    if(!sb) throw new Error('Conexão com o banco não inicializada');
+    // O Supabase limita cada consulta a 1000 linhas; buscamos em lotes até trazer tudo.
+    let todas=[], de=0, lote=1000, fim=false;
+    while(!fim){
+      const { data, error } = await sb.from('questoes')
+        .select('*').eq('status','aprovada').order('id',{ascending:true})
+        .range(de, de+lote-1);
+      if(error) throw error;
+      todas=todas.concat(data||[]);
+      if(!data || data.length<lote) fim=true; else de+=lote;
+    }
+    QUESTOES=todas.map(normalizarQuestao);
     montarPainelAreaDisciplina();
     filtrar();
   }catch(e){
     grid.innerHTML='<div class="vazio">Não foi possível carregar o banco de questões.<br><small>'+e.message+'</small></div>';
-    console.error('Erro ao carregar questoes.json:',e);
+    console.error('Erro ao carregar questões do Supabase:',e);
   }
 }
-carregarBanco();
+// espera a conexão Supabase (módulo) estar pronta antes de carregar
+(function aguardarSb(){
+  if(window.__sb) carregarBanco();
+  else setTimeout(aguardarSb,50);
+})();
 </script>
 
 <footer class="footer">
