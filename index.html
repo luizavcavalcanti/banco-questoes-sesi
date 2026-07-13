@@ -133,6 +133,7 @@ body{font-family:'Montserrat',sans-serif;background:var(--navy);color:var(--whit
 .enunciado{font-family:'Source Serif 4',serif;font-size:13.5px;line-height:1.68;color:#1e293b;margin-bottom:12px;text-align:justify;text-justify:inter-word;}
 .card-img{width:100%;border-radius:8px;margin-bottom:12px;border:1px solid var(--gray-border);display:block;}
 .alt .card-img{max-width:260px;width:auto;max-height:160px;margin:4px 0;}
+.card-formula-img{display:inline-block;height:1.1em;width:auto;vertical-align:-.2em;margin:0 2px;border:none;border-radius:0;}
 .pergunta{font-family:'Montserrat',sans-serif;font-size:13px;font-weight:600;color:#0f172a;margin-bottom:10px;text-align:justify;text-justify:inter-word;}
 .alternativas{list-style:none;display:flex;flex-direction:column;gap:5px;}
 .alt{display:flex;align-items:flex-start;gap:8px;padding:7px 10px;border-radius:8px;border:1px solid transparent;cursor:pointer;transition:background .15s;font-size:12.5px;line-height:1.5;color:#374151;}
@@ -161,6 +162,93 @@ body{font-family:'Montserrat',sans-serif;background:var(--navy);color:var(--whit
 .btn-topo{position:fixed;bottom:28px;right:28px;width:44px;height:44px;background:var(--blue-sesi);color:white;border:none;border-radius:50%;cursor:pointer;font-size:18px;box-shadow:0 4px 16px rgba(0,0,0,.3);display:none;align-items:center;justify-content:center;z-index:50;}
 .btn-topo.visivel{display:flex;}
 .btn-topo:hover{opacity:.85;}
+button.btn-forms{border:none;cursor:pointer;font-family:'Montserrat',sans-serif;}
+
+/* MODAL DE ENVIO DE QUESTÃO */
+.overlay-envio{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:250;align-items:flex-start;justify-content:center;padding:30px 16px;overflow-y:auto;}
+.overlay-envio.aberto{display:flex;}
+.modal-envio{background:#fff;border-radius:16px;width:100%;max-width:640px;box-shadow:0 20px 60px rgba(0,0,0,.4);overflow:hidden;color:#1a2236;}
+.modal-envio .env-head{background:var(--navy);color:#fff;padding:18px 24px;display:flex;justify-content:space-between;align-items:center;}
+.modal-envio .env-head h3{margin:0;font-size:17px;}
+.modal-envio .env-head button{background:none;border:none;font-size:26px;color:rgba(255,255,255,.7);cursor:pointer;line-height:1;}
+.modal-envio .env-head button:hover{color:#fff;}
+.modal-envio .env-body{padding:22px 24px;max-height:70vh;overflow-y:auto;}
+.modal-envio .campo{margin-bottom:16px;}
+.modal-envio label{display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:6px;}
+.modal-envio .req{color:#c0392b;}
+.modal-envio input,.modal-envio textarea,.modal-envio select{width:100%;padding:11px 12px;border:1px solid #dde3ef;border-radius:9px;font-size:14px;font-family:inherit;color:#1a2236;background:#fff;}
+.modal-envio textarea{min-height:90px;resize:vertical;}
+.modal-envio input:focus,.modal-envio textarea:focus,.modal-envio select:focus{outline:none;border-color:var(--blue-sesi);}
+.modal-envio .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.modal-envio .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.modal-envio .alt-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.modal-envio .alt-row input{flex:1;min-width:0;}
+.modal-envio .letra{font-weight:700;color:var(--blue-sesi);width:24px;flex:0 0 24px;}
+.modal-envio .disc-box{border:1px solid #dde3ef;border-radius:9px;padding:12px;display:flex;flex-wrap:wrap;gap:14px;}
+.modal-envio .disc-grupo{display:flex;flex-direction:column;gap:5px;min-width:120px;}
+.modal-envio .disc-area{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--blue-sesi);margin-bottom:2px;}
+.modal-envio .chk{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:400;color:#374151;cursor:pointer;margin:0;}
+.modal-envio .chk input{width:auto;margin:0;}
+.modal-envio .upload-box{border:2px dashed #dde3ef;border-radius:10px;padding:18px;text-align:center;color:#6b7280;cursor:pointer;font-size:14px;}
+.modal-envio .upload-box:hover{border-color:var(--blue-sesi);color:var(--blue-sesi);}
+.modal-envio .lista-img{margin-top:12px;display:flex;flex-direction:column;gap:8px;}
+.modal-envio .img-item{display:flex;align-items:center;gap:10px;background:#f3f5fb;border:1px solid #dde3ef;border-radius:8px;padding:8px 10px;font-size:13px;}
+.modal-envio .img-item img{width:42px;height:42px;object-fit:cover;border-radius:6px;border:1px solid #dde3ef;}
+.modal-envio .img-item .nome{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.modal-envio .img-item .marcador{font-family:monospace;font-size:12px;font-weight:700;color:#fff;background:var(--blue-sesi);padding:3px 7px;border-radius:5px;flex:0 0 auto;}
+.modal-envio .img-item .tam{color:#6b7280;font-size:12px;}
+.modal-envio .img-item button{background:#fde8e8;color:#a11;border:none;border-radius:6px;padding:5px 9px;cursor:pointer;font-size:12px;}
+.modal-envio .aviso-marcador{display:flex;gap:10px;align-items:flex-start;background:#eaf2ff;border:1px solid #b9d2f5;border-left:4px solid var(--blue-sesi);border-radius:8px;padding:11px 13px;margin-top:8px;font-size:13px;color:#1a3a6b;line-height:1.45;}
+.modal-envio .aviso-marcador code{background:#fff;border:1px solid #b9d2f5;border-radius:4px;padding:1px 6px;font-family:monospace;font-size:12px;color:var(--blue-sesi);font-weight:700;}
+.modal-envio .previa-caixa{border:1px solid #dde3ef;border-radius:10px;padding:16px 18px;background:#f8fafc;margin-top:4px;}
+.modal-envio .previa-titulo{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:10px;}
+.modal-envio .previa-enun{font-family:'Source Serif 4',serif;font-size:14.5px;line-height:1.65;color:#1a2236;text-align:justify;white-space:pre-wrap;}
+.modal-envio .previa-vazio{color:#9aa5b8;font-style:italic;font-size:13px;font-family:'Montserrat',sans-serif;}
+.modal-envio .previa-alts{list-style:none;margin:14px 0 0;padding:0;display:flex;flex-direction:column;gap:8px;}
+.modal-envio .previa-alts li{font-family:'Source Serif 4',serif;font-size:14px;line-height:1.5;color:#1a2236;display:flex;gap:8px;align-items:flex-start;}
+.modal-envio .previa-letra{font-weight:700;color:var(--blue-sesi);flex-shrink:0;font-family:'Montserrat',sans-serif;}
+.modal-envio .previa-img{max-width:100%;max-height:220px;display:block;margin:8px 0;border:1px solid #dde3ef;border-radius:8px;}
+.modal-envio .previa-formula-inline{display:inline-block;height:1.1em;vertical-align:-.2em;margin:0 2px;}
+.modal-envio .previa-marcador-erro{color:#a11;font-family:'Montserrat',sans-serif;font-size:12.5px;font-style:italic;}
+.formula-modal-envio.modal-confirma-envio{max-width:640px;}
+.conf-resumo{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:12.5px;color:#6b7280;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid #dde3ef;}
+.conf-resumo b{color:#1a2236;}
+.modal-envio small.dica{color:#6b7280;font-size:12px;display:block;margin-top:4px;}
+.modal-envio .env-foot{padding:16px 24px 22px;}
+.btn-enviar-questao{width:100%;background:var(--blue-sesi);color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Montserrat',sans-serif;}
+.btn-enviar-questao:hover{filter:brightness(1.08);}
+.btn-enviar-questao:disabled{opacity:.6;cursor:not-allowed;}
+.status-envio{margin-top:14px;padding:12px;border-radius:9px;font-size:14px;display:none;}
+.status-envio.ok{display:block;background:#e7f6ec;color:#1a6b35;border:1px solid #b9e3c6;}
+.status-envio.erro{display:block;background:#fdeaea;color:#a11;border:1px solid #f2c2c2;}
+.status-envio.carregando{display:block;background:#eef2fb;color:#2a3d6b;border:1px solid #cdd8f0;}
+
+/* Editor de fórmulas (dentro do modal de envio) */
+.btn-formula{margin-left:8px;display:inline-flex;align-items:center;gap:5px;background:none;border:1px solid var(--blue-sesi);color:var(--blue-sesi);border-radius:6px;padding:3px 9px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:'Montserrat',sans-serif;vertical-align:middle;}
+.btn-formula:hover{background:#eaf2ff;}
+.formula-btn-mini{flex-shrink:0;width:34px;height:34px;display:flex;align-items:center;justify-content:center;border:1px solid #dde3ef;background:#fff;border-radius:8px;cursor:pointer;color:var(--blue-sesi);}
+.formula-btn-mini:hover{border-color:var(--blue-sesi);background:#eaf2ff;}
+.overlay-formula-envio{display:none;position:fixed;inset:0;background:rgba(13,27,62,.7);z-index:260;align-items:flex-start;justify-content:center;padding:30px 16px;overflow-y:auto;}
+.overlay-formula-envio.aberto{display:flex;}
+.formula-modal-envio{background:#fff;border-radius:16px;width:100%;max-width:520px;box-shadow:0 30px 80px rgba(0,0,0,.4);overflow:hidden;color:#1a2236;}
+.formula-modal-envio .fm-head{background:var(--navy);color:#fff;padding:16px 22px;display:flex;justify-content:space-between;align-items:center;}
+.formula-modal-envio .fm-head h3{margin:0;font-size:16px;}
+.formula-modal-envio .fm-head button{background:none;border:none;font-size:24px;color:rgba(255,255,255,.7);cursor:pointer;line-height:1;}
+.formula-modal-envio .fm-head button:hover{color:#fff;}
+.formula-modal-envio .fm-body{padding:20px 22px;}
+.formula-modal-envio .fm-foot{padding:14px 22px;border-top:1px solid #eef2f9;display:flex;justify-content:flex-end;gap:10px;}
+.formula-toolbar{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
+.formula-btn{background:#f3f5fb;border:1px solid #dde3ef;border-radius:7px;padding:6px 10px;font-size:14px;color:#1a2236;cursor:pointer;min-width:34px;}
+.formula-btn:hover{background:#eaf2ff;border-color:var(--blue-sesi);color:var(--blue-sesi);}
+.formula-preview{min-height:64px;border:1.5px dashed #dde3ef;border-radius:9px;padding:16px;display:flex;align-items:center;justify-content:center;background:#fff;color:#1a2236;font-size:18px;overflow-x:auto;}
+.formula-vazio{color:#9aa5b8;font-size:13px;font-style:italic;}
+.formula-erro{color:#a11;font-size:13px;}
+.formula-status{color:#a11;font-size:12.5px;margin-top:8px;min-height:16px;}
+.btn-cancelar-formula{background:#fff;border:1px solid #dde3ef;color:#374151;border-radius:9px;padding:9px 16px;font-size:13.5px;font-weight:600;cursor:pointer;}
+.btn-cancelar-formula:hover{border-color:#c2c9d6;}
+.btn-inserir-formula{background:var(--blue-sesi);border:none;color:#fff;border-radius:9px;padding:9px 16px;font-size:13.5px;font-weight:700;cursor:pointer;}
+.btn-inserir-formula:hover{filter:brightness(1.08);}
+.btn-inserir-formula:disabled{opacity:.6;cursor:not-allowed;}
 
 @media(max-width:700px){
   .header-logo{flex:0 0 160px;padding:0 12px;}
@@ -168,6 +256,7 @@ body{font-family:'Montserrat',sans-serif;background:var(--navy);color:var(--whit
   .filtros{grid-template-columns:1fr 1fr;}
   .grid{grid-template-columns:1fr;}
   .main{padding:20px 14px 60px;}
+  .modal-envio .grid2,.modal-envio .grid3{grid-template-columns:1fr;}
 }
 @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
 
@@ -219,7 +308,7 @@ body{font-family:'Montserrat',sans-serif;background:var(--navy);color:var(--whit
     <strong>4. Gabarito:</strong> Clique em "Ver Gabarito" para revelar a resposta correta em verde.<br><br>
     <strong>Submeter novas questões</strong><br>
     Sugestões passam por validação antes de entrar no banco.<br>
-    <a class="btn-forms" href="https://forms.office.com/r/khvzvphyUS" target="_blank">Acessar formulário de submissão →</a>
+    <button class="btn-forms" onclick="abrirEnvio()">Enviar nova questão →</button>
   </div>
   <div class="filtros">
     <div class="filtro-group">
@@ -319,6 +408,175 @@ body{font-family:'Montserrat',sans-serif;background:var(--navy);color:var(--whit
   </div>
 </div>
 
+<!-- Modal de Envio de Nova Questão -->
+<div class="overlay-envio" id="overlay-envio">
+  <div class="modal-envio">
+    <div class="env-head"><h3>Enviar nova questão</h3><button onclick="fecharEnvio()">&times;</button></div>
+    <div class="env-body">
+      <div class="campo">
+        <label>Disciplina(s) <span class="req">*</span></label>
+        <div class="disc-box" id="env-disc-box">
+          <div class="disc-grupo"><span class="disc-area">Humanas</span>
+            <label class="chk"><input type="checkbox" value="História"> História</label>
+            <label class="chk"><input type="checkbox" value="Geografia"> Geografia</label>
+            <label class="chk"><input type="checkbox" value="Filosofia"> Filosofia</label>
+            <label class="chk"><input type="checkbox" value="Sociologia"> Sociologia</label>
+          </div>
+          <div class="disc-grupo"><span class="disc-area">Natureza</span>
+            <label class="chk"><input type="checkbox" value="Biologia"> Biologia</label>
+            <label class="chk"><input type="checkbox" value="Física"> Física</label>
+            <label class="chk"><input type="checkbox" value="Química"> Química</label>
+          </div>
+          <div class="disc-grupo"><span class="disc-area">Linguagens</span>
+            <label class="chk"><input type="checkbox" value="Português"> Português</label>
+            <label class="chk"><input type="checkbox" value="Inglês"> Inglês</label>
+            <label class="chk"><input type="checkbox" value="Espanhol"> Espanhol</label>
+            <label class="chk"><input type="checkbox" value="Artes"> Artes</label>
+            <label class="chk"><input type="checkbox" value="Educação Física"> Ed. Física</label>
+            <label class="chk"><input type="checkbox" value="Literatura"> Literatura</label>
+          </div>
+          <div class="disc-grupo"><span class="disc-area">Matemática</span>
+            <label class="chk"><input type="checkbox" value="Matemática"> Matemática</label>
+          </div>
+        </div>
+        <small class="dica">Marque uma ou mais. Use várias para questões interdisciplinares.</small>
+      </div>
+
+      <div class="grid2">
+        <div class="campo">
+          <label>Tipo de prova</label>
+          <select id="env-tipo-prova">
+            <option value="">—</option>
+            <option>ENEM</option><option>SSA</option><option>PASSE</option><option>Autoral</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label>Ano</label>
+          <input id="env-ano" type="number" placeholder="Ex: 2024">
+        </div>
+      </div>
+
+      <div class="campo">
+        <label>Habilidades SESI sugeridas</label>
+        <input id="env-habilidades" placeholder="Ex: SESI.EM13CHS01.s.01">
+      </div>
+
+      <div class="aviso-marcador">
+        <span>🖼️</span>
+        <div><b>Imagem no meio do texto?</b> Escreva o marcador <code>[imagem 1]</code>, <code>[imagem 2]</code>… no ponto exato do enunciado onde a imagem deve aparecer. Os números seguem a ordem das imagens anexadas abaixo.</div>
+      </div>
+
+      <div class="campo">
+        <label>Enunciado <span class="req">*</span> <button type="button" class="btn-formula" onclick="abrirFormulaEnvio('env-enunciado')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h2.5l3 8L13 3h8"/></svg> Inserir fórmula</button></label>
+        <textarea id="env-enunciado" placeholder="Digite o enunciado da questão..."></textarea>
+      </div>
+
+      <div class="campo">
+        <label>Alternativas</label>
+        <div class="alt-row"><span class="letra">A)</span><input id="env-alt-a" placeholder="Alternativa A"><button type="button" class="formula-btn-mini" title="Inserir fórmula" onclick="abrirFormulaEnvio('env-alt-a')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h2.5l3 8L13 3h8"/></svg></button></div>
+        <div class="alt-row"><span class="letra">B)</span><input id="env-alt-b" placeholder="Alternativa B"><button type="button" class="formula-btn-mini" title="Inserir fórmula" onclick="abrirFormulaEnvio('env-alt-b')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h2.5l3 8L13 3h8"/></svg></button></div>
+        <div class="alt-row"><span class="letra">C)</span><input id="env-alt-c" placeholder="Alternativa C"><button type="button" class="formula-btn-mini" title="Inserir fórmula" onclick="abrirFormulaEnvio('env-alt-c')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h2.5l3 8L13 3h8"/></svg></button></div>
+        <div class="alt-row"><span class="letra">D)</span><input id="env-alt-d" placeholder="Alternativa D"><button type="button" class="formula-btn-mini" title="Inserir fórmula" onclick="abrirFormulaEnvio('env-alt-d')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h2.5l3 8L13 3h8"/></svg></button></div>
+        <div class="alt-row"><span class="letra">E)</span><input id="env-alt-e" placeholder="Alternativa E"><button type="button" class="formula-btn-mini" title="Inserir fórmula" onclick="abrirFormulaEnvio('env-alt-e')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h2.5l3 8L13 3h8"/></svg></button></div>
+      </div>
+
+      <div class="campo">
+        <div class="previa-caixa">
+          <div class="previa-titulo">👁️ Pré-visualização — assim sua questão vai aparecer</div>
+          <div id="env-previa"><span class="previa-vazio">O enunciado aparece aqui conforme você digita…</span></div>
+        </div>
+      </div>
+
+      <div class="campo">
+        <label>Comentários <span class="opcional">(opcional)</span></label>
+        <textarea id="env-comentarios" placeholder="Alguma observação para o analista? (ex: dúvida sobre a habilidade, fonte da questão, etc.)"></textarea>
+      </div>
+
+      <div class="campo">
+        <label>Imagens da questão (opcional)</label>
+        <div class="upload-box" onclick="document.getElementById('env-file-input').click()">
+          Clique para anexar imagens (PNG, JPG ou WEBP, até 2MB cada)
+        </div>
+        <input type="file" id="env-file-input" accept="image/png,image/jpeg,image/webp" multiple style="display:none">
+        <div class="lista-img" id="env-lista-img"></div>
+        <small class="dica">Sem limite de quantidade. Cada imagem deve ter no máximo 2MB.</small>
+      </div>
+
+      <div class="campo">
+        <label>Gabarito <span class="req">*</span></label>
+        <select id="env-gabarito">
+          <option value="">—</option>
+          <option>A</option><option>B</option><option>C</option><option>D</option><option>E</option>
+        </select>
+      </div>
+
+      <hr style="border:none;border-top:1px solid #dde3ef;margin:20px 0">
+
+      <div class="grid2">
+        <div class="campo">
+          <label>Seu nome <span class="req">*</span></label>
+          <input id="env-professor-nome" placeholder="Nome completo">
+        </div>
+        <div class="campo">
+          <label>Unidade SESI <span class="req">*</span></label>
+          <input id="env-professor-unidade" placeholder="Ex: Caruaru">
+        </div>
+      </div>
+      <div class="campo">
+        <label>E-mail institucional <span class="req">*</span></label>
+        <input id="env-professor-email" type="email" placeholder="seu.nome@sesi-pe.org.br">
+        <small class="dica">Usado apenas para devolver o retorno do analista sobre sua questão.</small>
+      </div>
+    </div>
+    <div class="env-foot">
+      <button class="btn-enviar-questao" id="env-btn-enviar" onclick="revisarEnvioModal()">Enviar questão para revisão</button>
+      <div class="status-envio" id="env-status"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de confirmação antes do envio de verdade -->
+<div class="overlay-formula-envio" id="overlay-confirma-envio">
+  <div class="formula-modal-envio modal-confirma-envio modal-envio">
+    <div class="fm-head"><h3>Confira antes de enviar</h3><button onclick="voltarEditarEnvioModal()">&times;</button></div>
+    <div class="fm-body">
+      <div class="conf-resumo" id="confirma-resumo-envio"></div>
+      <div class="previa-caixa">
+        <div class="previa-titulo">👁️ Assim sua questão vai aparecer</div>
+        <div id="confirma-previa-envio"></div>
+      </div>
+      <div id="status-confirma-envio" class="status-envio"></div>
+    </div>
+    <div class="fm-foot">
+      <button class="btn-cancelar-formula" onclick="voltarEditarEnvioModal()">← Voltar e editar</button>
+      <button class="btn-inserir-formula" id="btn-confirmar-envio-modal" onclick="confirmarEnvioModalFinal()">Confirmar e enviar →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal do editor de fórmulas (usado dentro do modal de envio) -->
+<div class="overlay-formula-envio" id="overlay-formula-envio">
+  <div class="formula-modal-envio">
+    <div class="fm-head"><h3>Inserir fórmula</h3><button onclick="fecharFormulaEnvio()">&times;</button></div>
+    <div class="fm-body">
+      <div class="formula-toolbar" id="formula-toolbar-envio"></div>
+      <div class="campo">
+        <label>Campo da fórmula</label>
+        <input type="text" id="formula-input-envio" placeholder="Clique nos símbolos acima ou digite aqui" oninput="atualizarPreviewFormulaEnvio()">
+      </div>
+      <div class="campo">
+        <label>Pré-visualização</label>
+        <div class="formula-preview" id="formula-preview-envio"><span class="formula-vazio">A fórmula aparece aqui…</span></div>
+      </div>
+      <div id="formula-status-envio" class="formula-status"></div>
+    </div>
+    <div class="fm-foot">
+      <button class="btn-cancelar-formula" onclick="fecharFormulaEnvio()">Cancelar</button>
+      <button class="btn-inserir-formula" id="btn-inserir-formula-envio" onclick="confirmarFormulaEnvio()">Inserir fórmula</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
   // Conexão com o Supabase (leitura pública das questões aprovadas).
   // A chave publishable pode ficar aqui: o RLS só permite ler questões com status='aprovada'.
@@ -372,7 +630,10 @@ function resolverSrc(ref){
   return 'imagens/'+r;                        // nome de arquivo -> pasta local
 }
 function imgTag(arquivo){
-  return `<img src="${resolverSrc(arquivo)}" class="card-img" alt="" loading="lazy" onerror="this.style.display='none'">`;
+  const src = resolverSrc(arquivo);
+  const ehFormula = /formula_\d+/i.test(src);
+  const cls = ehFormula ? 'card-formula-img' : 'card-img';
+  return `<img src="${src}" class="${cls}" alt="" loading="lazy" onerror="this.style.display='none'">`;
 }
 // Converte o enunciado: tags [q001.png] OU [https://...png] viram imagens no lugar exato
 function renderEnunciado(texto){
@@ -1212,5 +1473,349 @@ async function carregarBanco(){
 <div style="background:#faeeda;border-top:2px solid #FAC775;padding:14px 24px;text-align:center;font-size:12px;color:#633806;line-height:1.7;">
   <strong>Aviso legal:</strong> As questões disponibilizadas neste banco são reproduzidas exclusivamente para fins pedagógicos e institucionais, sem qualquer finalidade comercial, em conformidade com o Art. 46 da Lei de Direitos Autorais (Lei nº 9.610/1998). As provas de origem são de acesso público: ENEM (INEP/MEC), SSA (UPE) e PASSE. Este banco destina-se ao uso pedagógico pelos professores da rede SESI-PE.
 </div>
+
+<script>
+// ===== Envio de nova questão (modal integrado ao site público) =====
+// Mesma arquitetura do formulario_teste.html: nenhuma chave aqui, só a URL
+// pública da Edge Function. Ela valida e faz o upload das imagens no servidor.
+const URL_ENVIAR_QUESTAO = "https://vyyjmcaefmhuevzazfjs.supabase.co/functions/v1/enviar-questao";
+const MAX_MB_ENVIO = 2;
+let imagensAnexadasEnvio = [];
+
+function abrirEnvio(){
+  document.getElementById('overlay-envio').classList.add('aberto');
+}
+function fecharEnvio(){
+  document.getElementById('overlay-envio').classList.remove('aberto');
+}
+
+document.getElementById('env-file-input').addEventListener('change', async (e) => {
+  for (const file of e.target.files) {
+    if (file.size > MAX_MB_ENVIO * 1024 * 1024) {
+      mostrarStatusEnvio('erro', `A imagem "${file.name}" excede ${MAX_MB_ENVIO}MB e não foi anexada.`);
+      continue;
+    }
+    const base64 = await fileParaBase64Envio(file);
+    imagensAnexadasEnvio.push({
+      nome: file.name, tipo: file.type, base64,
+      tamanho: (file.size/1024).toFixed(0) + ' KB',
+      preview: 'data:'+file.type+';base64,'+base64
+    });
+  }
+  e.target.value = '';
+  renderImagensEnvio();
+});
+
+function renderImagensEnvio(){
+  document.getElementById('env-lista-img').innerHTML = imagensAnexadasEnvio.map((img, i) => `
+    <div class="img-item">
+      <img src="${img.preview}" alt="">
+      <span class="marcador">[imagem ${i+1}]</span>
+      <span class="nome">${escaparEnvio(img.nome)}</span>
+      <span class="tam">${img.tamanho}</span>
+      <button onclick="removerImagemEnvio(${i})">remover</button>
+    </div>`).join('');
+  atualizarPreviaEnvio();
+}
+function removerImagemEnvio(i){ imagensAnexadasEnvio.splice(i,1); renderImagensEnvio(); }
+
+// ---- Pré-visualização ao vivo (enunciado + alternativas com imagens/fórmulas no lugar) ----
+function renderPreviaCampoEnvio(texto){
+  const escapado = escaparEnvio(texto || '');
+  return escapado.replace(/\[imagem\s*(\d+)\]/gi, (m, num) => {
+    const img = imagensAnexadasEnvio[Number(num)-1];
+    if (!img) return `<span class="previa-marcador-erro">[imagem ${num} — anexe a imagem ou fórmula correspondente]</span>`;
+    const cls = img.ehFormula ? 'previa-formula-inline' : 'previa-img';
+    return `<img src="${img.preview}" class="${cls}" alt="imagem ${num}">`;
+  }).replace(/\n/g, '<br>');
+}
+function montarHtmlPreviaEnvio(){
+  const enun = document.getElementById('env-enunciado').value;
+  const letras = ['a','b','c','d','e'];
+  const altsPreenchidas = letras.filter(l => document.getElementById('env-alt-'+l).value.trim());
+  let html = enun.trim()
+    ? `<div class="previa-enun">${renderPreviaCampoEnvio(enun)}</div>`
+    : `<span class="previa-vazio">O enunciado aparece aqui conforme você digita…</span>`;
+  if (altsPreenchidas.length){
+    html += `<ul class="previa-alts">` + altsPreenchidas.map(l =>
+      `<li><span class="previa-letra">${l.toUpperCase()})</span><span>${renderPreviaCampoEnvio(document.getElementById('env-alt-'+l).value)}</span></li>`
+    ).join('') + `</ul>`;
+  }
+  return html;
+}
+function atualizarPreviaEnvio(){
+  const cont = document.getElementById('env-previa');
+  if (cont) cont.innerHTML = montarHtmlPreviaEnvio();
+}
+['env-enunciado','env-alt-a','env-alt-b','env-alt-c','env-alt-d','env-alt-e'].forEach(id => {
+  document.getElementById(id).addEventListener('input', atualizarPreviaEnvio);
+});
+
+function fileParaBase64Envio(file){
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result.split(',')[1]);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+// ---- Editor de fórmulas (KaTeX + html2canvas carregados sob demanda,
+// só quando o professor realmente clica em "Inserir fórmula" — assim quem
+// nunca usa isso não baixa nada a mais) ----
+let libsFormulaEnvioCarregadas = false;
+let libsFormulaEnvioPromise = null;
+function carregarLibsFormulaEnvio(){
+  if (libsFormulaEnvioCarregadas) return Promise.resolve();
+  if (libsFormulaEnvioPromise) return libsFormulaEnvioPromise;
+  libsFormulaEnvioPromise = new Promise((resolve, reject) => {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css';
+    document.head.appendChild(link);
+    const s1 = document.createElement('script');
+    s1.src = 'https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js';
+    s1.onload = () => {
+      const s2 = document.createElement('script');
+      s2.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+      s2.onload = () => { libsFormulaEnvioCarregadas = true; resolve(); };
+      s2.onerror = () => reject(new Error('Falha ao carregar html2canvas'));
+      document.head.appendChild(s2);
+    };
+    s1.onerror = () => reject(new Error('Falha ao carregar KaTeX'));
+    document.head.appendChild(s1);
+  });
+  return libsFormulaEnvioPromise;
+}
+
+const FORMULA_BOTOES_ENVIO=[
+  {lbl:'a/b', snip:'\\frac{}{}', off:6, title:'Fração'},
+  {lbl:'x²', snip:'^{}', off:2, title:'Expoente'},
+  {lbl:'x₂', snip:'_{}', off:2, title:'Subscrito'},
+  {lbl:'√', snip:'\\sqrt{}', off:6, title:'Raiz quadrada'},
+  {lbl:'ⁿ√', snip:'\\sqrt[]{}', off:7, title:'Raiz com índice'},
+  {lbl:'Σ', snip:'\\sum_{}^{}', off:6, title:'Somatório'},
+  {lbl:'∫', snip:'\\int_{}^{}', off:6, title:'Integral'},
+  {lbl:'∏', snip:'\\prod_{}^{}', off:7, title:'Produtório'},
+  {lbl:'lim', snip:'\\lim_{}', off:6, title:'Limite'},
+  {lbl:'( )', snip:'\\left(\\right)', off:6, title:'Parênteses grandes'},
+  {lbl:'π', snip:'\\pi', off:3, title:'Pi'},
+  {lbl:'θ', snip:'\\theta', off:6, title:'Teta'},
+  {lbl:'α', snip:'\\alpha', off:6, title:'Alfa'},
+  {lbl:'β', snip:'\\beta', off:5, title:'Beta'},
+  {lbl:'Δ', snip:'\\Delta', off:6, title:'Delta'},
+  {lbl:'≤', snip:'\\leq', off:4, title:'Menor ou igual'},
+  {lbl:'≥', snip:'\\geq', off:4, title:'Maior ou igual'},
+  {lbl:'≠', snip:'\\neq', off:4, title:'Diferente'},
+  {lbl:'±', snip:'\\pm', off:3, title:'Mais ou menos'},
+  {lbl:'×', snip:'\\times', off:6, title:'Multiplicação'},
+  {lbl:'÷', snip:'\\div', off:4, title:'Divisão'},
+  {lbl:'→', snip:'\\rightarrow', off:11, title:'Seta'},
+  {lbl:'∞', snip:'\\infty', off:6, title:'Infinito'},
+  {lbl:'ℝ', snip:'\\mathbb{R}', off:10, title:'Conjunto dos reais'},
+  {lbl:'ℂ', snip:'\\mathbb{C}', off:10, title:'Conjunto dos complexos'},
+  {lbl:'ℕ', snip:'\\mathbb{N}', off:10, title:'Conjunto dos naturais'},
+  {lbl:'ℤ', snip:'\\mathbb{Z}', off:10, title:'Conjunto dos inteiros'},
+  {lbl:'ℚ', snip:'\\mathbb{Q}', off:10, title:'Conjunto dos racionais'},
+  {lbl:'z̅', snip:'\\overline{}', off:10, title:'Conjugado (barra superior)'},
+  {lbl:'∈', snip:'\\in', off:3, title:'Pertence'},
+  {lbl:'∉', snip:'\\notin', off:6, title:'Não pertence'},
+  {lbl:'⊂', snip:'\\subset', off:7, title:'Contido'},
+  {lbl:'⊆', snip:'\\subseteq', off:9, title:'Contido ou igual'},
+  {lbl:'∪', snip:'\\cup', off:4, title:'União'},
+  {lbl:'∩', snip:'\\cap', off:4, title:'Interseção'},
+  {lbl:'∀', snip:'\\forall', off:7, title:'Para todo'},
+  {lbl:'∃', snip:'\\exists', off:7, title:'Existe'},
+  {lbl:'∅', snip:'\\emptyset', off:9, title:'Conjunto vazio'},
+  {lbl:'⇒', snip:'\\Rightarrow', off:11, title:'Implica'},
+  {lbl:'⇔', snip:'\\Leftrightarrow', off:15, title:'Se e somente se'},
+  {lbl:'| |', snip:'\\left|\\right|', off:6, title:'Módulo / valor absoluto'},
+];
+let campoAlvoFormulaEnvio = null;
+function montarToolbarFormulaEnvio(){
+  const cont = document.getElementById('formula-toolbar-envio');
+  if (!cont || cont.dataset.montado) return;
+  cont.innerHTML = FORMULA_BOTOES_ENVIO.map((b,i) => `<button type="button" class="formula-btn" title="${b.title||''}" onclick="inserirNaFormulaEnvio(${i})">${b.lbl}</button>`).join('');
+  cont.dataset.montado = '1';
+}
+function inserirNaFormulaEnvio(i){
+  const b = FORMULA_BOTOES_ENVIO[i];
+  const inp = document.getElementById('formula-input-envio');
+  const start = inp.selectionStart ?? inp.value.length;
+  const end = inp.selectionEnd ?? inp.value.length;
+  inp.value = inp.value.slice(0,start) + b.snip + inp.value.slice(end);
+  const pos = start + b.off;
+  inp.focus();
+  inp.setSelectionRange(pos,pos);
+  atualizarPreviewFormulaEnvio();
+}
+function atualizarPreviewFormulaEnvio(){
+  const src = document.getElementById('formula-input-envio').value;
+  const prev = document.getElementById('formula-preview-envio');
+  if (!src.trim()) { prev.innerHTML = '<span class="formula-vazio">A fórmula aparece aqui…</span>'; return; }
+  if (!window.katex) return;
+  try{
+    window.katex.render(src, prev, {throwOnError:false, displayMode:true});
+  }catch(e){
+    prev.innerHTML = '<span class="formula-erro">Não foi possível exibir esta fórmula.</span>';
+  }
+}
+function abrirFormulaEnvio(campoId){
+  campoAlvoFormulaEnvio = campoId;
+  const inp = document.getElementById('formula-input-envio'); inp.value = '';
+  const status = document.getElementById('formula-status-envio');
+  status.textContent = '';
+  document.getElementById('formula-preview-envio').innerHTML = '<span class="formula-vazio">Carregando editor…</span>';
+  document.getElementById('overlay-formula-envio').classList.add('aberto');
+  carregarLibsFormulaEnvio().then(() => {
+    montarToolbarFormulaEnvio();
+    atualizarPreviewFormulaEnvio();
+    setTimeout(() => inp.focus(), 50);
+  }).catch(() => {
+    status.textContent = 'Não foi possível carregar o editor de fórmulas. Verifique sua conexão e tente novamente.';
+  });
+}
+function fecharFormulaEnvio(){
+  document.getElementById('overlay-formula-envio').classList.remove('aberto');
+}
+async function confirmarFormulaEnvio(){
+  const src = document.getElementById('formula-input-envio').value.trim();
+  const status = document.getElementById('formula-status-envio');
+  if (!src) { status.textContent = 'Monte a fórmula antes de inserir.'; return; }
+  if (!window.html2canvas) { status.textContent = 'O editor ainda está carregando, aguarde um instante.'; return; }
+  const btn = document.getElementById('btn-inserir-formula-envio');
+  btn.disabled = true; const txtOriginal = btn.textContent; btn.textContent = 'Gerando imagem…';
+  status.textContent = '';
+  try{
+    const prev = document.getElementById('formula-preview-envio');
+    const canvas = await window.html2canvas(prev.querySelector('.katex')||prev, {backgroundColor:null, scale:4, useCORS:true});
+    const dataUrl = canvas.toDataURL('image/png');
+    const base64 = dataUrl.split(',')[1];
+    const nomeArquivo = `formula_${Date.now()}.png`;
+    const numero = imagensAnexadasEnvio.length + 1;
+    imagensAnexadasEnvio.push({
+      nome: nomeArquivo, tipo: 'image/png', base64,
+      tamanho: Math.round(base64.length*0.75/1024) + ' KB',
+      preview: dataUrl, ehFormula: true
+    });
+    renderImagensEnvio();
+    const campo = document.getElementById(campoAlvoFormulaEnvio);
+    if (campo){
+      const marcador = (campo.value && !campo.value.endsWith(' ') ? ' ' : '') + `[imagem ${numero}] `;
+      campo.value = (campo.value||'') + marcador;
+    }
+    atualizarPreviaEnvio();
+    fecharFormulaEnvio();
+  }catch(e){
+    console.error(e);
+    status.textContent = 'Erro ao gerar a imagem da fórmula: ' + (e&&e.message?e.message:'tente novamente.');
+  }finally{
+    btn.disabled = false; btn.textContent = txtOriginal;
+  }
+}
+
+// ---- Enviar (em duas etapas: revisar/confirmar → enviar de verdade) ----
+let dadosPendentesEnvioModal = null;
+
+function revisarEnvioModal(){
+  const discMarcadas = [...document.querySelectorAll('#env-disc-box input:checked')].map(c=>c.value);
+  const obrig = {
+    enunciado: document.getElementById('env-enunciado').value.trim(),
+    gabarito: document.getElementById('env-gabarito').value,
+    professor_nome: document.getElementById('env-professor-nome').value.trim(),
+    professor_unidade: document.getElementById('env-professor-unidade').value.trim(),
+    professor_email: document.getElementById('env-professor-email').value.trim(),
+  };
+  for (const [k,v] of Object.entries(obrig)){
+    if (!v){ mostrarStatusEnvio('erro', 'Preencha todos os campos obrigatórios (marcados com *).'); return; }
+  }
+  if (discMarcadas.length===0){ mostrarStatusEnvio('erro', 'Selecione pelo menos uma disciplina.'); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(obrig.professor_email)){
+    mostrarStatusEnvio('erro', 'E-mail inválido.'); return;
+  }
+
+  dadosPendentesEnvioModal = {
+    enunciado: obrig.enunciado,
+    alternativa_a: document.getElementById('env-alt-a').value, alternativa_b: document.getElementById('env-alt-b').value,
+    alternativa_c: document.getElementById('env-alt-c').value, alternativa_d: document.getElementById('env-alt-d').value,
+    alternativa_e: document.getElementById('env-alt-e').value,
+    gabarito: obrig.gabarito,
+    disciplina: discMarcadas.join(', '),
+    tipo_prova: document.getElementById('env-tipo-prova').value || null,
+    ano: document.getElementById('env-ano').value ? Number(document.getElementById('env-ano').value) : null,
+    habilidades_sugeridas: document.getElementById('env-habilidades').value || null,
+    comentarios: document.getElementById('env-comentarios').value || null,
+    professor_nome: obrig.professor_nome,
+    professor_unidade: obrig.professor_unidade,
+    professor_email: obrig.professor_email,
+    imagens: imagensAnexadasEnvio.map(i => ({ nome:i.nome, tipo:i.tipo, base64:i.base64 })),
+  };
+
+  document.getElementById('env-status').className = 'status-envio';
+  document.getElementById('env-status').textContent = '';
+  abrirConfirmacaoEnvioModal();
+}
+
+function abrirConfirmacaoEnvioModal(){
+  const d = dadosPendentesEnvioModal;
+  document.getElementById('confirma-resumo-envio').innerHTML = `
+    <span><b>Disciplina(s):</b> ${escaparEnvio(d.disciplina)}</span>
+    <span><b>Gabarito:</b> ${escaparEnvio(d.gabarito)}</span>
+    ${d.tipo_prova ? `<span><b>Tipo:</b> ${escaparEnvio(d.tipo_prova)}</span>` : ''}
+    <span><b>Professor(a):</b> ${escaparEnvio(d.professor_nome)} · ${escaparEnvio(d.professor_unidade)}</span>
+  `;
+  document.getElementById('confirma-previa-envio').innerHTML = montarHtmlPreviaEnvio();
+  document.getElementById('status-confirma-envio').className = 'status-envio';
+  document.getElementById('status-confirma-envio').textContent = '';
+  document.getElementById('overlay-confirma-envio').classList.add('aberto');
+}
+function voltarEditarEnvioModal(){
+  document.getElementById('overlay-confirma-envio').classList.remove('aberto');
+}
+
+async function confirmarEnvioModalFinal(){
+  const dados = dadosPendentesEnvioModal;
+  if (!dados) return;
+  const btn = document.getElementById('btn-confirmar-envio-modal');
+  btn.disabled = true;
+  const statusEl = document.getElementById('status-confirma-envio');
+  statusEl.className = 'status-envio carregando';
+  statusEl.textContent = 'Enviando... (as imagens podem levar alguns segundos)';
+
+  try{
+    const resp = await fetch(URL_ENVIAR_QUESTAO, {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json' },
+      body: JSON.stringify(dados)
+    });
+    const r = await resp.json().catch(()=>({}));
+    if (!resp.ok){ throw new Error(r.erro || 'falha no envio'); }
+    voltarEditarEnvioModal();
+    mostrarStatusEnvio('ok', `Questão enviada com sucesso! ${r.imagens_enviadas||0} imagem(ns) anexada(s). O analista vai revisar.`);
+    limparFormEnvio();
+    dadosPendentesEnvioModal = null;
+  }catch(e){
+    statusEl.className = 'status-envio erro';
+    statusEl.textContent = 'Erro ao enviar: ' + e.message;
+  }finally{
+    btn.disabled = false;
+  }
+}
+
+function limparFormEnvio(){
+  ['env-enunciado','env-alt-a','env-alt-b','env-alt-c','env-alt-d','env-alt-e','env-ano','env-habilidades','env-comentarios',
+   'env-professor-nome','env-professor-unidade','env-professor-email'].forEach(id => document.getElementById(id).value = '');
+  ['env-gabarito','env-tipo-prova'].forEach(id => document.getElementById(id).value = '');
+  document.querySelectorAll('#env-disc-box input:checked').forEach(c => c.checked = false);
+  imagensAnexadasEnvio = []; renderImagensEnvio();
+}
+
+function mostrarStatusEnvio(tipo, msg){
+  const el = document.getElementById('env-status');
+  el.className = 'status-envio ' + tipo;
+  el.textContent = msg;
+}
+function escaparEnvio(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+</script>
 </body>
 </html>
