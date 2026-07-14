@@ -177,6 +177,18 @@ button.btn-forms{border:none;cursor:pointer;font-family:'Montserrat',sans-serif;
 .modal-envio label{display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:6px;}
 .modal-envio .req{color:#c0392b;}
 .modal-envio input,.modal-envio textarea,.modal-envio select{width:100%;padding:11px 12px;border:1px solid #dde3ef;border-radius:9px;font-size:14px;font-family:inherit;color:#1a2236;background:#fff;}
+.modal-envio .rich-editor{width:100%;min-height:90px;border:1px solid #dde3ef;border-radius:9px;padding:11px 12px;font-size:14px;font-family:'Source Serif 4',serif;line-height:1.6;color:#1a2236;background:#fff;outline:none;}
+.modal-envio .rich-editor:focus{border-color:var(--blue-sesi);}
+.modal-envio .rich-editor:empty:before{content:attr(data-placeholder);color:#9aa5b8;font-family:'Montserrat',sans-serif;font-size:14px;}
+.modal-envio .rich-editor-alt{min-height:44px;flex:1;padding:9px 12px;}
+.modal-envio .formula-inline-editavel{display:inline-block;height:1.15em;width:auto;vertical-align:-.2em;margin:0 2px;cursor:pointer;border-radius:2px;}
+.modal-envio .formula-inline-editavel:hover{outline:2px solid var(--blue-sesi);outline-offset:1px;}
+.modal-envio .imagem-inline-editavel{display:block;max-width:100%;margin:10px 0;border-radius:8px;border:1px solid #dde3ef;cursor:pointer;}
+.imagem-tam-popup{position:fixed;z-index:400;background:#0d1b3e;border-radius:8px;padding:5px;display:flex;gap:4px;box-shadow:0 6px 20px rgba(0,0,0,.35);}
+.imagem-tam-popup button{background:rgba(255,255,255,.08);border:none;color:#fff;font-size:11px;font-weight:700;padding:6px 11px;border-radius:5px;cursor:pointer;font-family:'Montserrat',sans-serif;}
+.imagem-tam-popup button:hover{background:rgba(255,255,255,.2);}
+.imagem-tam-popup button.ativo{background:var(--blue-sesi);}
+.modal-envio .imagem-inline-editavel:hover{outline:2px solid var(--blue-sesi);outline-offset:1px;}
 .modal-envio textarea{min-height:90px;resize:vertical;}
 .modal-envio input:focus,.modal-envio textarea:focus,.modal-envio select:focus{outline:none;border-color:var(--blue-sesi);}
 .modal-envio .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
@@ -204,10 +216,10 @@ button.btn-forms{border:none;cursor:pointer;font-family:'Montserrat',sans-serif;
 .modal-envio .previa-titulo{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:10px;}
 .modal-envio .previa-enun{font-family:'Source Serif 4',serif;font-size:14.5px;line-height:1.65;color:#1a2236;text-align:justify;white-space:pre-wrap;}
 .modal-envio .previa-vazio{color:#9aa5b8;font-style:italic;font-size:13px;font-family:'Montserrat',sans-serif;}
-.modal-envio .previa-alts{list-style:none;margin:14px 0 0;padding:0;display:flex;flex-direction:column;gap:8px;}
+.modal-envio .previa-alts{list-style:none;margin:20px 0 0;padding:0;display:flex;flex-direction:column;gap:8px;}
 .modal-envio .previa-alts li{font-family:'Source Serif 4',serif;font-size:14px;line-height:1.5;color:#1a2236;display:flex;gap:8px;align-items:flex-start;}
 .modal-envio .previa-letra{font-weight:700;color:var(--blue-sesi);flex-shrink:0;font-family:'Montserrat',sans-serif;}
-.modal-envio .previa-img{max-width:100%;max-height:220px;display:block;margin:8px 0;border:1px solid #dde3ef;border-radius:8px;}
+.modal-envio .previa-img{max-width:100%;max-height:220px;display:block;margin:16px 0 22px;border:1px solid #dde3ef;border-radius:8px;}
 .modal-envio .previa-formula-inline{display:inline-block;height:1.1em;vertical-align:-.2em;margin:0 2px;}
 .modal-envio .previa-marcador-erro{color:#a11;font-family:'Montserrat',sans-serif;font-size:12.5px;font-style:italic;}
 .formula-modal-envio.modal-confirma-envio{max-width:640px;}
@@ -447,7 +459,7 @@ button.btn-forms{border:none;cursor:pointer;font-family:'Montserrat',sans-serif;
           <label>Tipo de prova</label>
           <select id="env-tipo-prova">
             <option value="">—</option>
-            <option>ENEM</option><option>SSA</option><option>PASSE</option><option>Autoral</option>
+            <option>ENEM</option><option>SSA</option><option>PASSE</option><option>Autoral</option><option>SAEB</option><option>ITA</option><option>Outro</option>
           </select>
         </div>
         <div class="campo">
@@ -462,44 +474,28 @@ button.btn-forms{border:none;cursor:pointer;font-family:'Montserrat',sans-serif;
       </div>
 
       <div class="aviso-marcador">
-        <span>🖼️</span>
-        <div><b>Imagem no meio do texto?</b> Escreva o marcador <code>[imagem 1]</code>, <code>[imagem 2]</code>… no ponto exato do enunciado onde a imagem deve aparecer. Os números seguem a ordem das imagens anexadas abaixo.</div>
+        <span>💡</span>
+        <div><b>Fórmulas e imagens</b> entram direto no texto: clique nos botões ao lado do campo (🧮 fórmula, 🖼️ imagem) no ponto exato onde ela deve aparecer. Clique numa imagem já inserida pra escolher o tamanho (P/M/G). Pra apagar, clique na imagem/fórmula e aperte Delete. Duplo clique numa fórmula reabre pra editar.</div>
       </div>
 
       <div class="campo">
-        <label>Enunciado <span class="req">*</span> <button type="button" class="btn-formula" onclick="abrirFormulaEnvio('env-enunciado')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h2.5l3 8L13 3h8"/></svg> Inserir fórmula</button></label>
-        <textarea id="env-enunciado" placeholder="Digite o enunciado da questão..."></textarea>
+        <label>Enunciado <span class="req">*</span> <button type="button" class="btn-formula" onclick="abrirFormulaEnvio('env-enunciado')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h2.5l3 8L13 3h8"/></svg> Inserir fórmula</button> <button type="button" class="btn-formula" onclick="abrirSeletorImagemEnvio('env-enunciado')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg> Inserir imagem</button></label>
+        <div id="env-enunciado" class="rich-editor" contenteditable="true" data-placeholder="Digite o enunciado da questão..."></div>
       </div>
 
       <div class="campo">
         <label>Alternativas</label>
-        <div class="alt-row"><span class="letra">A)</span><input id="env-alt-a" placeholder="Alternativa A"><button type="button" class="formula-btn-mini" title="Inserir fórmula" onclick="abrirFormulaEnvio('env-alt-a')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h2.5l3 8L13 3h8"/></svg></button></div>
-        <div class="alt-row"><span class="letra">B)</span><input id="env-alt-b" placeholder="Alternativa B"><button type="button" class="formula-btn-mini" title="Inserir fórmula" onclick="abrirFormulaEnvio('env-alt-b')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h2.5l3 8L13 3h8"/></svg></button></div>
-        <div class="alt-row"><span class="letra">C)</span><input id="env-alt-c" placeholder="Alternativa C"><button type="button" class="formula-btn-mini" title="Inserir fórmula" onclick="abrirFormulaEnvio('env-alt-c')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h2.5l3 8L13 3h8"/></svg></button></div>
-        <div class="alt-row"><span class="letra">D)</span><input id="env-alt-d" placeholder="Alternativa D"><button type="button" class="formula-btn-mini" title="Inserir fórmula" onclick="abrirFormulaEnvio('env-alt-d')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h2.5l3 8L13 3h8"/></svg></button></div>
-        <div class="alt-row"><span class="letra">E)</span><input id="env-alt-e" placeholder="Alternativa E"><button type="button" class="formula-btn-mini" title="Inserir fórmula" onclick="abrirFormulaEnvio('env-alt-e')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h2.5l3 8L13 3h8"/></svg></button></div>
+        <div class="alt-row"><span class="letra">A)</span><div id="env-alt-a" class="rich-editor rich-editor-alt" contenteditable="true" data-placeholder="Alternativa A"></div><button type="button" class="formula-btn-mini" title="Inserir fórmula" onclick="abrirFormulaEnvio('env-alt-a')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h2.5l3 8L13 3h8"/></svg></button><button type="button" class="formula-btn-mini" title="Inserir imagem" onclick="abrirSeletorImagemEnvio('env-alt-a')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></button></div>
+        <div class="alt-row"><span class="letra">B)</span><div id="env-alt-b" class="rich-editor rich-editor-alt" contenteditable="true" data-placeholder="Alternativa B"></div><button type="button" class="formula-btn-mini" title="Inserir fórmula" onclick="abrirFormulaEnvio('env-alt-b')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h2.5l3 8L13 3h8"/></svg></button><button type="button" class="formula-btn-mini" title="Inserir imagem" onclick="abrirSeletorImagemEnvio('env-alt-b')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></button></div>
+        <div class="alt-row"><span class="letra">C)</span><div id="env-alt-c" class="rich-editor rich-editor-alt" contenteditable="true" data-placeholder="Alternativa C"></div><button type="button" class="formula-btn-mini" title="Inserir fórmula" onclick="abrirFormulaEnvio('env-alt-c')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h2.5l3 8L13 3h8"/></svg></button><button type="button" class="formula-btn-mini" title="Inserir imagem" onclick="abrirSeletorImagemEnvio('env-alt-c')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></button></div>
+        <div class="alt-row"><span class="letra">D)</span><div id="env-alt-d" class="rich-editor rich-editor-alt" contenteditable="true" data-placeholder="Alternativa D"></div><button type="button" class="formula-btn-mini" title="Inserir fórmula" onclick="abrirFormulaEnvio('env-alt-d')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h2.5l3 8L13 3h8"/></svg></button><button type="button" class="formula-btn-mini" title="Inserir imagem" onclick="abrirSeletorImagemEnvio('env-alt-d')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></button></div>
+        <div class="alt-row"><span class="letra">E)</span><div id="env-alt-e" class="rich-editor rich-editor-alt" contenteditable="true" data-placeholder="Alternativa E"></div><button type="button" class="formula-btn-mini" title="Inserir fórmula" onclick="abrirFormulaEnvio('env-alt-e')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h2.5l3 8L13 3h8"/></svg></button><button type="button" class="formula-btn-mini" title="Inserir imagem" onclick="abrirSeletorImagemEnvio('env-alt-e')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></button></div>
       </div>
-
-      <div class="campo">
-        <div class="previa-caixa">
-          <div class="previa-titulo">👁️ Pré-visualização — assim sua questão vai aparecer</div>
-          <div id="env-previa"><span class="previa-vazio">O enunciado aparece aqui conforme você digita…</span></div>
-        </div>
-      </div>
+      <input type="file" id="seletor-imagem-oculto-envio" accept="image/png,image/jpeg,image/webp" style="display:none" onchange="processarImagemSelecionadaEnvio(this)">
 
       <div class="campo">
         <label>Comentários <span class="opcional">(opcional)</span></label>
         <textarea id="env-comentarios" placeholder="Alguma observação para o analista? (ex: dúvida sobre a habilidade, fonte da questão, etc.)"></textarea>
-      </div>
-
-      <div class="campo">
-        <label>Imagens da questão (opcional)</label>
-        <div class="upload-box" onclick="document.getElementById('env-file-input').click()">
-          Clique para anexar imagens (PNG, JPG ou WEBP, até 2MB cada)
-        </div>
-        <input type="file" id="env-file-input" accept="image/png,image/jpeg,image/webp" multiple style="display:none">
-        <div class="lista-img" id="env-lista-img"></div>
-        <small class="dica">Sem limite de quantidade. Cada imagem deve ter no máximo 2MB.</small>
       </div>
 
       <div class="campo">
@@ -629,20 +625,21 @@ function resolverSrc(ref){
   if(/^https?:\/\//i.test(r)) return r;      // já é URL completa
   return 'imagens/'+r;                        // nome de arquivo -> pasta local
 }
-function imgTag(arquivo){
+function imgTag(arquivo, tam){
   const src = resolverSrc(arquivo);
   const ehFormula = /formula_\d+/i.test(src);
   const cls = ehFormula ? 'card-formula-img' : 'card-img';
-  return `<img src="${src}" class="${cls}" alt="" loading="lazy" onerror="this.style.display='none'">`;
+  const estilo = tam ? ` style="width:${tam}%"` : '';
+  return `<img src="${src}" class="${cls}"${estilo} alt="" loading="lazy" onerror="this.style.display='none'">`;
 }
-// Converte o enunciado: tags [q001.png] OU [https://...png] viram imagens no lugar exato
+// Converte o enunciado: tags [q001.png], [https://...png] ou [https://...png|60] (60% de tamanho) viram imagens no lugar exato
 function renderEnunciado(texto){
   if(!texto) return '';
   // escapar HTML básico antes (evita injeção), preservando quebras
   let t = texto
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  // substituir tags de imagem: aceita nome de arquivo OU URL completa dentro dos colchetes
-  t = t.replace(/\[\s*(https?:\/\/[^\]\s]+?\.(?:png|jpe?g|webp)|q[\w.]+\.(?:png|jpe?g))\s*\]/gi, (m,arq)=> imgTag(arq));
+  // substituir tags de imagem: aceita nome de arquivo OU URL completa dentro dos colchetes, com tamanho opcional (|60)
+  t = t.replace(/\[\s*(https?:\/\/[^\]\s|]+?\.(?:png|jpe?g|webp)|q[\w.]+\.(?:png|jpe?g))(?:\|(\d+))?\s*\]/gi, (m,arq,tam)=> imgTag(arq,tam));
   // quebras de linha -> <br> (parágrafos duplos viram espaçamento)
   t = t.replace(/\n{2,}/g,'</p><p class="enunciado">').replace(/\n/g,'<br>');
   return t;
@@ -651,7 +648,7 @@ function renderCard(q,delay){
   const sel=selecionadas.has(q.id), gabRev=gabaritosRevelados.has(q.id);
   // imagens "soltas" (caso o enunciado não tenha a tag inline) — fallback
   let imgsHtml='';
-  const enunTemTag=/\[\s*(?:https?:\/\/[^\]\s]+?\.(?:png|jpe?g|webp)|q[\w.]+\.(?:png|jpe?g))\s*\]/i.test(q.enunciado||'');
+  const enunTemTag=/\[\s*(?:https?:\/\/[^\]\s|]+?\.(?:png|jpe?g|webp)|q[\w.]+\.(?:png|jpe?g))(?:\|\d+)?\s*\]/i.test(q.enunciado||'');
   if(!enunTemTag){
     (q.imagens||[]).forEach(arq=>{ imgsHtml+=imgTag(arq); });
   }
@@ -1000,7 +997,7 @@ async function abrirPreviaFicha(d){
   // Pré-carregar todas as imagens das questões selecionadas
   // (de q.imagens E das tags [qXXX.ext] no enunciado e nas alternativas)
   const cacheImg={};
-  const tagImg=/\[\s*(https?:\/\/[^\]\s]+?\.(?:png|jpe?g|webp)|q[\w.]+\.(?:png|jpe?g))\s*\]/gi;
+  const tagImg=/\[\s*(https?:\/\/[^\]\s|]+?\.(?:png|jpe?g|webp)|q[\w.]+\.(?:png|jpe?g))(?:\|\d+)?\s*\]/gi;
   function coletarArquivos(q){
     const arquivos=new Set(q.imagens||[]);
     let m;
@@ -1030,7 +1027,7 @@ async function abrirPreviaFicha(d){
   const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
 
   // Remove marcadores de imagem [qXXX.png] do texto para o PDF (imagens não embarcam na ficha de teste)
-  const limpaTags = (s)=> (s||'').replace(/\[\s*(?:https?:\/\/[^\]\s]+?\.(?:png|jpe?g|webp)|q[\w.]+\.(?:png|jpe?g))\s*\]/gi,'').replace(/\n{2,}/g,'\n').replace(/[ \t]{2,}/g,' ').trim();
+  const limpaTags = (s)=> (s||'').replace(/\[\s*(?:https?:\/\/[^\]\s|]+?\.(?:png|jpe?g|webp)|q[\w.]+\.(?:png|jpe?g))(?:\|\d+)?\s*\]/gi,'').replace(/\n{2,}/g,'\n').replace(/[ \t]{2,}/g,' ').trim();
 
 
   const W=210, H=297;
@@ -1489,67 +1486,103 @@ function fecharEnvio(){
   document.getElementById('overlay-envio').classList.remove('aberto');
 }
 
-document.getElementById('env-file-input').addEventListener('change', async (e) => {
-  for (const file of e.target.files) {
-    if (file.size > MAX_MB_ENVIO * 1024 * 1024) {
-      mostrarStatusEnvio('erro', `A imagem "${file.name}" excede ${MAX_MB_ENVIO}MB e não foi anexada.`);
-      continue;
-    }
-    const base64 = await fileParaBase64Envio(file);
-    imagensAnexadasEnvio.push({
-      nome: file.name, tipo: file.type, base64,
-      tamanho: (file.size/1024).toFixed(0) + ' KB',
-      preview: 'data:'+file.type+';base64,'+base64
-    });
+// ===== Redimensionar imagem inline (clique na imagem já inserida → P/M/G) =====
+const TAMANHOS_IMAGEM=[{lbl:'P',valor:30},{lbl:'M',valor:50},{lbl:'G',valor:100}];
+let imagemSelecionadaParaTamanho=null;
+document.addEventListener('click',(e)=>{
+  if(e.target.classList && e.target.classList.contains('imagem-inline-editavel')){
+    e.stopPropagation();
+    abrirSeletorTamanho(e.target);
+  } else if(!e.target.closest('.imagem-tam-popup')){
+    fecharSeletorTamanho();
   }
-  e.target.value = '';
-  renderImagensEnvio();
 });
-
-function renderImagensEnvio(){
-  document.getElementById('env-lista-img').innerHTML = imagensAnexadasEnvio.map((img, i) => `
-    <div class="img-item">
-      <img src="${img.preview}" alt="">
-      <span class="marcador">[imagem ${i+1}]</span>
-      <span class="nome">${escaparEnvio(img.nome)}</span>
-      <span class="tam">${img.tamanho}</span>
-      <button onclick="removerImagemEnvio(${i})">remover</button>
-    </div>`).join('');
-  atualizarPreviaEnvio();
+function abrirSeletorTamanho(img){
+  fecharSeletorTamanho();
+  imagemSelecionadaParaTamanho=img;
+  const atual=img.dataset.tam?Number(img.dataset.tam):100;
+  const pop=document.createElement('div');
+  pop.className='imagem-tam-popup';
+  pop.id='imagem-tam-popup';
+  pop.innerHTML=TAMANHOS_IMAGEM.map(t=>`<button type="button" class="${atual===t.valor?'ativo':''}" onclick="aplicarTamanhoImagem(${t.valor})">${t.lbl}</button>`).join('');
+  document.body.appendChild(pop);
+  const rect=img.getBoundingClientRect();
+  pop.style.left=Math.max(8,rect.left)+'px';
+  pop.style.top=Math.max(8,rect.top-42)+'px';
 }
-function removerImagemEnvio(i){ imagensAnexadasEnvio.splice(i,1); renderImagensEnvio(); }
-
-// ---- Pré-visualização ao vivo (enunciado + alternativas com imagens/fórmulas no lugar) ----
-function renderPreviaCampoEnvio(texto){
-  const escapado = escaparEnvio(texto || '');
-  return escapado.replace(/\[imagem\s*(\d+)\]/gi, (m, num) => {
-    const img = imagensAnexadasEnvio[Number(num)-1];
-    if (!img) return `<span class="previa-marcador-erro">[imagem ${num} — anexe a imagem ou fórmula correspondente]</span>`;
-    const cls = img.ehFormula ? 'previa-formula-inline' : 'previa-img';
-    return `<img src="${img.preview}" class="${cls}" alt="imagem ${num}">`;
-  }).replace(/\n/g, '<br>');
+function fecharSeletorTamanho(){
+  const pop=document.getElementById('imagem-tam-popup');
+  if(pop) pop.remove();
+  imagemSelecionadaParaTamanho=null;
 }
+function aplicarTamanhoImagem(valor){
+  if(!imagemSelecionadaParaTamanho) return;
+  if(valor>=100){
+    imagemSelecionadaParaTamanho.style.width='';
+    delete imagemSelecionadaParaTamanho.dataset.tam;
+  } else {
+    imagemSelecionadaParaTamanho.style.width=valor+'%';
+    imagemSelecionadaParaTamanho.dataset.tam=valor;
+  }
+  fecharSeletorTamanho();
+}
+
+let campoAlvoImagemEnvio = null;
+function abrirSeletorImagemEnvio(campoId){
+  campoAlvoImagemEnvio = campoId;
+  document.getElementById('seletor-imagem-oculto-envio').click();
+}
+async function processarImagemSelecionadaEnvio(input){
+  const file = input.files && input.files[0];
+  input.value = '';
+  if (!file) return;
+  if (file.size > MAX_MB_ENVIO * 1024 * 1024) {
+    mostrarStatusEnvio('erro', `A imagem "${file.name}" excede ${MAX_MB_ENVIO}MB.`);
+    return;
+  }
+  const base64 = await fileParaBase64Envio(file);
+  const dataUrl = 'data:'+file.type+';base64,'+base64;
+  const numero = imagensAnexadasEnvio.length + 1;
+  imagensAnexadasEnvio.push({
+    nome: file.name, tipo: file.type, base64,
+    tamanho: (file.size/1024).toFixed(0) + ' KB',
+    preview: dataUrl, ehFormula: false
+  });
+  const img = document.createElement('img');
+  img.src = dataUrl;
+  img.className = 'imagem-inline-editavel';
+  img.setAttribute('contenteditable','false');
+  img.dataset.idx = numero;
+  const campo = document.getElementById(campoAlvoImagemEnvio);
+  const range = cursorRicoSalvoEnvio[campoAlvoImagemEnvio];
+  if (range && campo.contains(range.commonAncestorContainer)){
+    range.deleteContents();
+    range.insertNode(img);
+    range.setStartAfter(img); range.setEndAfter(img); range.collapse(true);
+    const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
+  } else {
+    campo.appendChild(img);
+  }
+  salvarCursorRicoEnvio(campoAlvoImagemEnvio);
+}
+
+// Monta o HTML da questão (enunciado + alternativas, já com imagens/fórmulas embutidas)
+// — usado só na tela de confirmação, como validação final antes de enviar de verdade.
 function montarHtmlPreviaEnvio(){
-  const enun = document.getElementById('env-enunciado').value;
+  const enunEl = document.getElementById('env-enunciado');
   const letras = ['a','b','c','d','e'];
-  const altsPreenchidas = letras.filter(l => document.getElementById('env-alt-'+l).value.trim());
-  let html = enun.trim()
-    ? `<div class="previa-enun">${renderPreviaCampoEnvio(enun)}</div>`
+  const campoTemConteudo = (el) => el.textContent.trim() !== '' || el.querySelector('img') !== null;
+  const altsPreenchidas = letras.filter(l => campoTemConteudo(document.getElementById('env-alt-'+l)));
+  let html = campoTemConteudo(enunEl)
+    ? `<div class="previa-enun">${enunEl.innerHTML}</div>`
     : `<span class="previa-vazio">O enunciado aparece aqui conforme você digita…</span>`;
   if (altsPreenchidas.length){
     html += `<ul class="previa-alts">` + altsPreenchidas.map(l =>
-      `<li><span class="previa-letra">${l.toUpperCase()})</span><span>${renderPreviaCampoEnvio(document.getElementById('env-alt-'+l).value)}</span></li>`
+      `<li><span class="previa-letra">${l.toUpperCase()})</span><span>${document.getElementById('env-alt-'+l).innerHTML}</span></li>`
     ).join('') + `</ul>`;
   }
   return html;
 }
-function atualizarPreviaEnvio(){
-  const cont = document.getElementById('env-previa');
-  if (cont) cont.innerHTML = montarHtmlPreviaEnvio();
-}
-['env-enunciado','env-alt-a','env-alt-b','env-alt-c','env-alt-d','env-alt-e'].forEach(id => {
-  document.getElementById(id).addEventListener('input', atualizarPreviaEnvio);
-});
 
 function fileParaBase64Envio(file){
   return new Promise((res, rej) => {
@@ -1632,6 +1665,50 @@ const FORMULA_BOTOES_ENVIO=[
   {lbl:'| |', snip:'\\left|\\right|', off:6, title:'Módulo / valor absoluto'},
 ];
 let campoAlvoFormulaEnvio = null;
+let imagemFormulaEmEdicaoEnvio = null;
+
+// Serializa o conteúdo do editor rico de volta pro texto puro com marcadores
+// (fórmula vira [imagem N], igual ao padrão que a Edge Function já sabe traduzir)
+function htmlParaTextoEnvio(el){
+  let out = '';
+  function andar(node){
+    if (node.nodeType === Node.TEXT_NODE){ out += node.nodeValue; return; }
+    if (node.nodeType !== Node.ELEMENT_NODE) return;
+    if (node.tagName === 'IMG'){
+      const tam = node.dataset.tam;
+      out += tam ? `[imagem ${node.dataset.idx}|${tam}]` : `[imagem ${node.dataset.idx}]`;
+      return;
+    }
+    if (node.tagName === 'BR'){ out += '\n'; return; }
+    const bloco = node.tagName === 'DIV' || node.tagName === 'P';
+    node.childNodes.forEach(andar);
+    if (bloco && node.nextSibling) out += '\n';
+  }
+  el.childNodes.forEach(andar);
+  return out.replace(/\n{3,}/g,'\n\n').trim();
+}
+// Guarda a última posição do cursor em cada editor (pra saber onde inserir a fórmula depois)
+const cursorRicoSalvoEnvio = {};
+function salvarCursorRicoEnvio(campoId){
+  const sel = window.getSelection();
+  if (sel.rangeCount>0){
+    const range = sel.getRangeAt(0);
+    const el = document.getElementById(campoId);
+    if (el && el.contains(range.commonAncestorContainer)) cursorRicoSalvoEnvio[campoId] = range.cloneRange();
+  }
+}
+['env-enunciado','env-alt-a','env-alt-b','env-alt-c','env-alt-d','env-alt-e'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) ['keyup','mouseup','blur'].forEach(ev => el.addEventListener(ev, () => salvarCursorRicoEnvio(id)));
+});
+// Duplo clique numa fórmula já inserida: reabre o editor pra ajustar
+document.addEventListener('dblclick', (e) => {
+  if (e.target.classList && e.target.classList.contains('formula-inline-editavel')){
+    const campo = e.target.closest('.rich-editor');
+    if (campo) abrirFormulaEnvio(campo.id, e.target);
+  }
+});
+
 function montarToolbarFormulaEnvio(){
   const cont = document.getElementById('formula-toolbar-envio');
   if (!cont || cont.dataset.montado) return;
@@ -1660,9 +1737,11 @@ function atualizarPreviewFormulaEnvio(){
     prev.innerHTML = '<span class="formula-erro">Não foi possível exibir esta fórmula.</span>';
   }
 }
-function abrirFormulaEnvio(campoId){
+function abrirFormulaEnvio(campoId, imgEmEdicao){
   campoAlvoFormulaEnvio = campoId;
-  const inp = document.getElementById('formula-input-envio'); inp.value = '';
+  imagemFormulaEmEdicaoEnvio = imgEmEdicao || null;
+  const inp = document.getElementById('formula-input-envio');
+  inp.value = (imgEmEdicao && imgEmEdicao.dataset.latex) ? imgEmEdicao.dataset.latex : '';
   const status = document.getElementById('formula-status-envio');
   status.textContent = '';
   document.getElementById('formula-preview-envio').innerHTML = '<span class="formula-vazio">Carregando editor…</span>';
@@ -1670,6 +1749,9 @@ function abrirFormulaEnvio(campoId){
   carregarLibsFormulaEnvio().then(() => {
     montarToolbarFormulaEnvio();
     atualizarPreviewFormulaEnvio();
+    if (imgEmEdicao && !imgEmEdicao.dataset.latex){
+      status.textContent = 'Esta fórmula foi criada antes deste recurso — digite-a novamente pra atualizar, ou cancele e apague-a selecionando-a e apertando Delete.';
+    }
     setTimeout(() => inp.focus(), 50);
   }).catch(() => {
     status.textContent = 'Não foi possível carregar o editor de fórmulas. Verifique sua conexão e tente novamente.';
@@ -1691,26 +1773,49 @@ async function confirmarFormulaEnvio(){
     const canvas = await window.html2canvas(prev.querySelector('.katex')||prev, {backgroundColor:null, scale:4, useCORS:true});
     const dataUrl = canvas.toDataURL('image/png');
     const base64 = dataUrl.split(',')[1];
-    const nomeArquivo = `formula_${Date.now()}.png`;
-    const numero = imagensAnexadasEnvio.length + 1;
-    imagensAnexadasEnvio.push({
-      nome: nomeArquivo, tipo: 'image/png', base64,
-      tamanho: Math.round(base64.length*0.75/1024) + ' KB',
-      preview: dataUrl, ehFormula: true
-    });
-    renderImagensEnvio();
-    const campo = document.getElementById(campoAlvoFormulaEnvio);
-    if (campo){
-      const marcador = (campo.value && !campo.value.endsWith(' ') ? ' ' : '') + `[imagem ${numero}] `;
-      campo.value = (campo.value||'') + marcador;
+
+    if (imagemFormulaEmEdicaoEnvio){
+      // edição de uma fórmula já existente: troca só o conteúdo, no mesmo índice/lugar
+      const idx = Number(imagemFormulaEmEdicaoEnvio.dataset.idx) - 1;
+      imagensAnexadasEnvio[idx] = {
+        nome: `formula_${Date.now()}.png`, tipo: 'image/png', base64,
+        tamanho: Math.round(base64.length*0.75/1024) + ' KB',
+        preview: dataUrl, ehFormula: true
+      };
+      imagemFormulaEmEdicaoEnvio.src = dataUrl;
+      imagemFormulaEmEdicaoEnvio.dataset.latex = src;
+    } else {
+      const numero = imagensAnexadasEnvio.length + 1;
+      imagensAnexadasEnvio.push({
+        nome: `formula_${Date.now()}.png`, tipo: 'image/png', base64,
+        tamanho: Math.round(base64.length*0.75/1024) + ' KB',
+        preview: dataUrl, ehFormula: true
+      });
+      const img = document.createElement('img');
+      img.src = dataUrl;
+      img.className = 'formula-inline-editavel';
+      img.setAttribute('contenteditable','false');
+      img.dataset.latex = src;
+      img.dataset.idx = numero;
+      const campo = document.getElementById(campoAlvoFormulaEnvio);
+      const range = cursorRicoSalvoEnvio[campoAlvoFormulaEnvio];
+      if (range && campo.contains(range.commonAncestorContainer)){
+        range.deleteContents();
+        range.insertNode(img);
+        range.setStartAfter(img); range.setEndAfter(img); range.collapse(true);
+        const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
+      } else {
+        campo.appendChild(img);
+      }
+      salvarCursorRicoEnvio(campoAlvoFormulaEnvio);
     }
-    atualizarPreviaEnvio();
     fecharFormulaEnvio();
   }catch(e){
     console.error(e);
     status.textContent = 'Erro ao gerar a imagem da fórmula: ' + (e&&e.message?e.message:'tente novamente.');
   }finally{
     btn.disabled = false; btn.textContent = txtOriginal;
+    imagemFormulaEmEdicaoEnvio = null;
   }
 }
 
@@ -1720,7 +1825,7 @@ let dadosPendentesEnvioModal = null;
 function revisarEnvioModal(){
   const discMarcadas = [...document.querySelectorAll('#env-disc-box input:checked')].map(c=>c.value);
   const obrig = {
-    enunciado: document.getElementById('env-enunciado').value.trim(),
+    enunciado: htmlParaTextoEnvio(document.getElementById('env-enunciado')),
     gabarito: document.getElementById('env-gabarito').value,
     professor_nome: document.getElementById('env-professor-nome').value.trim(),
     professor_unidade: document.getElementById('env-professor-unidade').value.trim(),
@@ -1736,9 +1841,9 @@ function revisarEnvioModal(){
 
   dadosPendentesEnvioModal = {
     enunciado: obrig.enunciado,
-    alternativa_a: document.getElementById('env-alt-a').value, alternativa_b: document.getElementById('env-alt-b').value,
-    alternativa_c: document.getElementById('env-alt-c').value, alternativa_d: document.getElementById('env-alt-d').value,
-    alternativa_e: document.getElementById('env-alt-e').value,
+    alternativa_a: htmlParaTextoEnvio(document.getElementById('env-alt-a')), alternativa_b: htmlParaTextoEnvio(document.getElementById('env-alt-b')),
+    alternativa_c: htmlParaTextoEnvio(document.getElementById('env-alt-c')), alternativa_d: htmlParaTextoEnvio(document.getElementById('env-alt-d')),
+    alternativa_e: htmlParaTextoEnvio(document.getElementById('env-alt-e')),
     gabarito: obrig.gabarito,
     disciplina: discMarcadas.join(', '),
     tipo_prova: document.getElementById('env-tipo-prova').value || null,
@@ -1803,11 +1908,12 @@ async function confirmarEnvioModalFinal(){
 }
 
 function limparFormEnvio(){
-  ['env-enunciado','env-alt-a','env-alt-b','env-alt-c','env-alt-d','env-alt-e','env-ano','env-habilidades','env-comentarios',
+  ['env-ano','env-habilidades','env-comentarios',
    'env-professor-nome','env-professor-unidade','env-professor-email'].forEach(id => document.getElementById(id).value = '');
+  ['env-enunciado','env-alt-a','env-alt-b','env-alt-c','env-alt-d','env-alt-e'].forEach(id => document.getElementById(id).innerHTML = '');
   ['env-gabarito','env-tipo-prova'].forEach(id => document.getElementById(id).value = '');
   document.querySelectorAll('#env-disc-box input:checked').forEach(c => c.checked = false);
-  imagensAnexadasEnvio = []; renderImagensEnvio();
+  imagensAnexadasEnvio = [];
 }
 
 function mostrarStatusEnvio(tipo, msg){
