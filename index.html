@@ -351,13 +351,14 @@ button.btn-forms{border:none;cursor:pointer;font-family:'Montserrat',sans-serif;
       </select>
     </div>
     <div class="filtro-group">
-      <label>Segmento</label>
-      <select id="sel-seg" onchange="filtrar()">
-        <option value="">Todos</option>
-        <option value="EM">Ensino Médio</option>
-        <option value="EF9">Anos Finais (EF)</option>
-        <option value="EF1">Anos Iniciais (EF)</option>
-      </select>
+      <label>Segmento / Série</label>
+      <div class="multi-select" id="ms-seg">
+        <button type="button" class="multi-select-btn" onclick="toggleMultiSelect('ms-seg')">
+          <span id="ms-seg-label">Todos</span>
+          <svg class="ms-arrow" width="11" height="7" viewBox="0 0 11 7" fill="none"><path d="M1 1L5.5 5.5L10 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="multi-select-panel" id="ms-seg-panel"></div>
+      </div>
     </div>
     <div class="filtro-group filtro-group-limpar">
       <label>&nbsp;</label>
@@ -452,6 +453,34 @@ button.btn-forms{border:none;cursor:pointer;font-family:'Montserrat',sans-serif;
           </div>
         </div>
         <small class="dica">Marque uma ou mais. Use várias para questões interdisciplinares.</small>
+      </div>
+
+      <div class="campo">
+        <label>Segmento / Série <span class="req">*</span></label>
+        <div class="disc-box" id="env-seg-box">
+          <div class="disc-grupo"><span class="disc-area">Ensino Médio</span>
+            <label class="chk"><input type="checkbox" class="env-chk-seg" value="Ensino Médio"> Vale p/ todo o Médio</label>
+            <label class="chk"><input type="checkbox" class="env-chk-serie" value="1ª série"> 1ª série</label>
+            <label class="chk"><input type="checkbox" class="env-chk-serie" value="2ª série"> 2ª série</label>
+            <label class="chk"><input type="checkbox" class="env-chk-serie" value="3ª série"> 3ª série</label>
+          </div>
+          <div class="disc-grupo"><span class="disc-area">Anos Finais (EF)</span>
+            <label class="chk"><input type="checkbox" class="env-chk-seg" value="Anos Finais (EF)"> Vale p/ todos os Finais</label>
+            <label class="chk"><input type="checkbox" class="env-chk-serie" value="6º ano"> 6º ano</label>
+            <label class="chk"><input type="checkbox" class="env-chk-serie" value="7º ano"> 7º ano</label>
+            <label class="chk"><input type="checkbox" class="env-chk-serie" value="8º ano"> 8º ano</label>
+            <label class="chk"><input type="checkbox" class="env-chk-serie" value="9º ano"> 9º ano</label>
+          </div>
+          <div class="disc-grupo"><span class="disc-area">Anos Iniciais (EF)</span>
+            <label class="chk"><input type="checkbox" class="env-chk-seg" value="Anos Iniciais (EF)"> Vale p/ todos os Iniciais</label>
+            <label class="chk"><input type="checkbox" class="env-chk-serie" value="1º ano"> 1º ano</label>
+            <label class="chk"><input type="checkbox" class="env-chk-serie" value="2º ano"> 2º ano</label>
+            <label class="chk"><input type="checkbox" class="env-chk-serie" value="3º ano"> 3º ano</label>
+            <label class="chk"><input type="checkbox" class="env-chk-serie" value="4º ano"> 4º ano</label>
+            <label class="chk"><input type="checkbox" class="env-chk-serie" value="5º ano"> 5º ano</label>
+          </div>
+        </div>
+        <small class="dica">Marque o segmento inteiro se a questão serve pra qualquer série dele (ex: ENEM/SSA), ou marque a(s) série(s) específica(s) se for direcionada.</small>
       </div>
 
       <div class="grid2">
@@ -695,6 +724,26 @@ const TODAS_DISCIPLINAS = Object.values(DISC_POR_AREA).flat();
 let areasSelecionadas = [];
 let discsSelecionadas = [];
 
+const SERIES_POR_SEGMENTO = {
+  'Ensino Médio': ['1ª série','2ª série','3ª série'],
+  'Anos Finais (EF)': ['6º ano','7º ano','8º ano','9º ano'],
+  'Anos Iniciais (EF)': ['1º ano','2º ano','3º ano','4º ano','5º ano']
+};
+const TODAS_SERIES = Object.values(SERIES_POR_SEGMENTO).flat();
+
+// Estado do filtro: segmentos e séries são marcações INDEPENDENTES (não hierárquicas), igual área/disciplina
+let segmentosSelecionados = [];
+let seriesSelecionadas = [];
+
+// Deriva o segmento de uma questão antiga (sem coluna própria) a partir do código da habilidade
+function segmentoDeHabilidades(habilidades){
+  const hs = habilidades || [];
+  if (hs.some(h=>h.includes('.EM'))) return 'Ensino Médio';
+  if (hs.some(h=>h.match(/\.EF(0[6-9]|[1-9][0-9])/))) return 'Anos Finais (EF)';
+  if (hs.some(h=>h.match(/\.EF0[1-5]/))) return 'Anos Iniciais (EF)';
+  return null;
+}
+
 // Abre/fecha um dropdown multi-select, fechando os outros
 function toggleMultiSelect(id){
   const el = document.getElementById(id);
@@ -750,6 +799,51 @@ function atualizarLabelAreaDisc(){
   span.textContent = total+' selecionadas';
 }
 
+// Monta o painel de Segmento/Série: mesmo padrão de ms-area (checkbox do segmento + setinha + sub-lista de séries)
+function montarPainelSegmentoSerie(){
+  const panel = document.getElementById('ms-seg-panel');
+  panel.innerHTML = Object.keys(SERIES_POR_SEGMENTO).map(seg=>{
+    const series = SERIES_POR_SEGMENTO[seg];
+    const idSeg = seg.replace(/[^a-zA-Z0-9]/g,'_');
+    return `
+      <div class="ms-area-item">
+        <div class="ms-area-row">
+          <label><input type="checkbox" class="chk-seg" value="${seg}" onchange="onFiltroSegmentoSerieChange()"> ${seg}</label>
+          <button type="button" class="ms-area-toggle" onclick="toggleSegmentoSeries('${idSeg}', event)">
+            <svg width="10" height="6" viewBox="0 0 11 7" fill="none"><path d="M1 1L5.5 5.5L10 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+        <div class="ms-disc-sublist" id="sub-seg-${idSeg}">
+          ${series.map(s=>'<label class="ms-option"><input type="checkbox" class="chk-serie" value="'+s+'" onchange="onFiltroSegmentoSerieChange()"> '+s+'</label>').join('')}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function toggleSegmentoSeries(idSeg, ev){
+  ev.stopPropagation();
+  const sub = document.getElementById('sub-seg-'+idSeg);
+  const btn = ev.currentTarget;
+  const abrir = !sub.classList.contains('expanded');
+  sub.classList.toggle('expanded', abrir);
+  btn.classList.toggle('expanded', abrir);
+}
+
+function onFiltroSegmentoSerieChange(){
+  segmentosSelecionados = Array.from(document.querySelectorAll('.chk-seg:checked')).map(c=>c.value);
+  seriesSelecionadas = Array.from(document.querySelectorAll('.chk-serie:checked')).map(c=>c.value);
+  atualizarLabelSegmentoSerie();
+  filtrar();
+}
+
+function atualizarLabelSegmentoSerie(){
+  const span = document.getElementById('ms-seg-label');
+  const total = segmentosSelecionados.length + seriesSelecionadas.length;
+  if(total===0){ span.textContent = 'Todos'; return; }
+  if(total===1){ span.textContent = segmentosSelecionados[0] || seriesSelecionadas[0]; return; }
+  span.textContent = total+' selecionados';
+}
+
 function onFiltroAreaDiscChange(){
   areasSelecionadas = Array.from(document.querySelectorAll('.chk-area:checked')).map(c=>c.value);
   discsSelecionadas = Array.from(document.querySelectorAll('.chk-disc:checked')).map(c=>c.value);
@@ -760,13 +854,12 @@ function onFiltroAreaDiscChange(){
 function filtrar(){
   const busca=document.getElementById('busca').value.toLowerCase();
   const tipo=document.getElementById('sel-tipo').value;
-  const seg=document.getElementById('sel-seg').value;
   const res=QUESTOES.filter(q=>{
     const mb=!busca||q.enunciado.toLowerCase().includes(busca)||(q.pergunta||'').toLowerCase().includes(busca)||(q.habilidades||[]).join(' ').toLowerCase().includes(busca)||q.alternativas.some(a=>a.texto.toLowerCase().includes(busca));
-    const segOk=!seg||
-    (seg==='EM' && (q.habilidades||[]).some(h=>h.includes('.EM')))||
-    (seg==='EF9' && (q.habilidades||[]).some(h=>h.match(/\.EF(0[6-9]|[1-9][0-9])/)))||
-    (seg==='EF1' && (q.habilidades||[]).some(h=>h.match(/\.EF0[1-5]/)));
+    // Segmento: bate se ALGUM segmento marcado bater com o(s) segmento(s) da questão (a questão vale pro segmento inteiro)
+    const segOk = segmentosSelecionados.length===0 || segmentosSelecionados.some(s=>(q.segmento||[]).includes(s));
+    // Série: bate só se a questão tiver marcada especificamente essa série (igual disciplina dentro de área)
+    const serieOk = seriesSelecionadas.length===0 || seriesSelecionadas.some(s=>(q.serie||[]).includes(s));
     const discsQ = (q.disciplina||'').split(',').map(s=>s.trim());
     // Área: questão passa se a área dela bater com QUALQUER área marcada,
     // OU se alguma disciplina da questão pertencer a uma das áreas marcadas
@@ -776,7 +869,7 @@ function filtrar(){
     // Disciplina: questão passa se tiver QUALQUER uma das disciplinas marcadas
     const discOk = discsSelecionadas.length===0 || discsSelecionadas.some(d=>discsQ.includes(d));
     const tipoOk = !tipo || q.tipo_prova===tipo || (q.tipo_prova||'').startsWith(tipo+'.') || (q.tipo_prova||'').startsWith(tipo);
-    return mb&&areaOk&&discOk&&tipoOk&&segOk;
+    return mb&&areaOk&&discOk&&tipoOk&&segOk&&serieOk;
   });
   // guardar resultados e voltar para a primeira página ao filtrar
   resultadosFiltrados = res;
@@ -858,10 +951,12 @@ function limpar(){
   document.querySelectorAll('#ms-area-panel input').forEach(c=>c.checked=false);
   areasSelecionadas=[]; discsSelecionadas=[];
   atualizarLabelAreaDisc();
+  document.querySelectorAll('#ms-seg-panel input').forEach(c=>c.checked=false);
+  segmentosSelecionados=[]; seriesSelecionadas=[];
+  atualizarLabelSegmentoSerie();
   document.querySelectorAll('.ms-disc-sublist.expanded').forEach(s=>s.classList.remove('expanded'));
   document.querySelectorAll('.ms-area-toggle.expanded').forEach(b=>b.classList.remove('expanded'));
   document.getElementById('sel-tipo').value='';
-  document.getElementById('sel-seg').value='';
   filtrar();
 }
 
@@ -1418,6 +1513,8 @@ function normalizarQuestao(q){
     alternativas:alts,
     gabarito:(q.gabarito||'').toString().trim().toUpperCase(),
     habilidades:habs,
+    segmento: q.segmento ? String(q.segmento).split(',').map(s=>s.trim()).filter(Boolean) : (segmentoDeHabilidades(habs) ? [segmentoDeHabilidades(habs)] : []),
+    serie: q.serie ? String(q.serie).split(',').map(s=>s.trim()).filter(Boolean) : [],
     imagens:q.imagens||[]
   };
 }
@@ -1440,6 +1537,7 @@ async function carregarBanco(){
     }
     QUESTOES=todas.map(normalizarQuestao);
     montarPainelAreaDisciplina();
+    montarPainelSegmentoSerie();
     filtrar();
   }catch(e){
     grid.innerHTML='<div class="vazio">Não foi possível carregar o banco de questões.<br><small>'+e.message+'</small></div>';
@@ -1824,6 +1922,8 @@ let dadosPendentesEnvioModal = null;
 
 function revisarEnvioModal(){
   const discMarcadas = [...document.querySelectorAll('#env-disc-box input:checked')].map(c=>c.value);
+  const segMarcados = [...document.querySelectorAll('.env-chk-seg:checked')].map(c=>c.value);
+  const seriesMarcadas = [...document.querySelectorAll('.env-chk-serie:checked')].map(c=>c.value);
   const obrig = {
     enunciado: htmlParaTextoEnvio(document.getElementById('env-enunciado')),
     gabarito: document.getElementById('env-gabarito').value,
@@ -1835,6 +1935,7 @@ function revisarEnvioModal(){
     if (!v){ mostrarStatusEnvio('erro', 'Preencha todos os campos obrigatórios (marcados com *).'); return; }
   }
   if (discMarcadas.length===0){ mostrarStatusEnvio('erro', 'Selecione pelo menos uma disciplina.'); return; }
+  if (segMarcados.length===0 && seriesMarcadas.length===0){ mostrarStatusEnvio('erro', 'Selecione ao menos um Segmento ou Série.'); return; }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(obrig.professor_email)){
     mostrarStatusEnvio('erro', 'E-mail inválido.'); return;
   }
@@ -1846,6 +1947,8 @@ function revisarEnvioModal(){
     alternativa_e: htmlParaTextoEnvio(document.getElementById('env-alt-e')),
     gabarito: obrig.gabarito,
     disciplina: discMarcadas.join(', '),
+    segmento: segMarcados.join(', '),
+    serie: seriesMarcadas.join(', '),
     tipo_prova: document.getElementById('env-tipo-prova').value || null,
     ano: document.getElementById('env-ano').value ? Number(document.getElementById('env-ano').value) : null,
     habilidades_sugeridas: document.getElementById('env-habilidades').value || null,
@@ -1865,6 +1968,7 @@ function abrirConfirmacaoEnvioModal(){
   const d = dadosPendentesEnvioModal;
   document.getElementById('confirma-resumo-envio').innerHTML = `
     <span><b>Disciplina(s):</b> ${escaparEnvio(d.disciplina)}</span>
+    <span><b>Segmento/Série:</b> ${escaparEnvio([d.segmento, d.serie].filter(Boolean).join(' · '))}</span>
     <span><b>Gabarito:</b> ${escaparEnvio(d.gabarito)}</span>
     ${d.tipo_prova ? `<span><b>Tipo:</b> ${escaparEnvio(d.tipo_prova)}</span>` : ''}
     <span><b>Professor(a):</b> ${escaparEnvio(d.professor_nome)} · ${escaparEnvio(d.professor_unidade)}</span>
@@ -1913,6 +2017,7 @@ function limparFormEnvio(){
   ['env-enunciado','env-alt-a','env-alt-b','env-alt-c','env-alt-d','env-alt-e'].forEach(id => document.getElementById(id).innerHTML = '');
   ['env-gabarito','env-tipo-prova'].forEach(id => document.getElementById(id).value = '');
   document.querySelectorAll('#env-disc-box input:checked').forEach(c => c.checked = false);
+  document.querySelectorAll('#env-seg-box input:checked').forEach(c => c.checked = false);
   imagensAnexadasEnvio = [];
 }
 
