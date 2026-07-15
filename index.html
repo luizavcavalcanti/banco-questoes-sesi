@@ -53,8 +53,8 @@ body{font-family:'Montserrat',sans-serif;background:var(--navy);color:var(--whit
 .multi-select-btn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .ms-arrow{flex-shrink:0;color:rgba(255,255,255,.55);transition:transform .2s;}
 .multi-select.open .ms-arrow{transform:rotate(180deg);color:white;}
-.multi-select-panel{display:none;position:absolute;top:calc(100% + 6px);left:0;min-width:230px;width:max-content;max-width:300px;background:#162348;border:1px solid rgba(255,255,255,.18);border-radius:8px;padding:6px;box-shadow:0 8px 24px rgba(0,0,0,.35);z-index:50;max-height:280px;overflow-y:auto;}
-.multi-select.open .multi-select-panel{display:block;}
+.multi-select-panel{display:none;position:fixed;min-width:230px;width:max-content;max-width:300px;background:#162348;border:1px solid rgba(255,255,255,.18);border-radius:8px;padding:6px;box-shadow:0 8px 24px rgba(0,0,0,.35);z-index:500;max-height:280px;overflow-y:auto;}
+.multi-select-panel.mm-aberto{display:block;}
 .ms-option{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:400;text-transform:none;letter-spacing:normal;color:rgba(255,255,255,.85);transition:background .15s;white-space:nowrap;margin-bottom:0;}
 .ms-option:hover{background:rgba(255,255,255,.08);}
 .ms-option input[type="checkbox"]{width:15px;height:15px;accent-color:var(--blue-sesi);cursor:pointer;flex-shrink:0;}
@@ -177,7 +177,7 @@ button.btn-forms{border:none;cursor:pointer;font-family:'Montserrat',sans-serif;
 .modal-envio label{display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:6px;}
 .modal-envio .req{color:#c0392b;}
 .modal-envio input,.modal-envio textarea,.modal-envio select{width:100%;padding:11px 12px;border:1px solid #dde3ef;border-radius:9px;font-size:14px;font-family:inherit;color:#1a2236;background:#fff;}
-.modal-envio .rich-editor{width:100%;min-height:90px;border:1px solid #dde3ef;border-radius:9px;padding:11px 12px;font-size:14px;font-family:'Source Serif 4',serif;line-height:1.6;color:#1a2236;background:#fff;outline:none;}
+.modal-envio .rich-editor{width:100%;min-height:90px;border:1px solid #dde3ef;border-radius:9px;padding:11px 12px;font-size:12pt;font-family:'Times New Roman',Times,serif;line-height:1.6;color:#1a2236;background:#fff;outline:none;}
 .modal-envio .rich-editor:focus{border-color:var(--blue-sesi);}
 .modal-envio .rich-editor:empty:before{content:attr(data-placeholder);color:#9aa5b8;font-family:'Montserrat',sans-serif;font-size:14px;}
 .modal-envio .rich-editor-alt{min-height:44px;flex:1;padding:9px 12px;}
@@ -197,6 +197,34 @@ button.btn-forms{border:none;cursor:pointer;font-family:'Montserrat',sans-serif;
 .modal-envio .alt-row input{flex:1;min-width:0;}
 .modal-envio .letra{font-weight:700;color:var(--blue-sesi);width:24px;flex:0 0 24px;}
 .modal-envio .disc-box{border:1px solid #dde3ef;border-radius:9px;padding:12px;display:flex;flex-wrap:wrap;gap:14px;}
+/* Multi-select compacto (mesmo padrão do filtro público) adaptado pro modal claro */
+.modal-envio .multi-select-btn{background:#fff;border:1px solid #dde3ef;color:#1a2236;font-family:inherit;font-weight:400;padding:11px 12px;border-radius:9px;font-size:14px;}
+.modal-envio .multi-select-btn:hover,.modal-envio .multi-select.open .multi-select-btn{border-color:var(--blue-sesi);}
+.modal-envio .ms-arrow{color:#9aa5b8;}
+.modal-envio .multi-select.open .ms-arrow{color:var(--blue-sesi);}
+.modal-envio .multi-select-panel{background:#fff;border:1px solid #dde3ef;box-shadow:0 8px 24px rgba(0,0,0,.14);}
+.modal-envio .ms-area-row:hover{background:#f3f5fb;}
+.modal-envio .ms-area-row label{color:#1a2236;}
+.modal-envio .ms-option{color:#374151;}
+.modal-envio .ms-option:hover{background:#f3f5fb;}
+.modal-envio .ms-area-toggle{color:#9aa5b8;}
+.modal-envio .ms-area-toggle:hover,.modal-envio .ms-area-toggle.expanded{color:var(--blue-sesi);}
+/* Campo de tags (conteúdos trabalhados): busca + adicionar + chips removíveis */
+.tags-input-box{position:relative;border:1px solid #dde3ef;border-radius:9px;padding:8px 10px;background:#fff;display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
+.tags-input-box:focus-within{border-color:var(--blue-sesi);}
+.tags-chips{display:flex;flex-wrap:wrap;gap:6px;}
+.tag-chip{display:flex;align-items:center;gap:4px;background:#eaf2ff;color:var(--blue-sesi);border:1px solid #b9d2f5;border-radius:20px;padding:4px 4px 4px 12px;font-size:13px;font-weight:600;white-space:nowrap;}
+.tag-chip button{background:none;border:none;color:var(--blue-sesi);cursor:pointer;font-size:15px;line-height:1;padding:3px 7px;border-radius:50%;}
+.tag-chip button:hover{background:rgba(26,79,160,.15);}
+.tags-input-box input{flex:1;min-width:160px;border:none;outline:none;padding:6px 2px;font-size:14px;font-family:inherit;color:#1a2236;}
+.tags-suggest-panel{display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1px solid #dde3ef;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.14);max-height:220px;overflow-y:auto;z-index:60;padding:6px;}
+.tags-suggest-panel.aberto{display:block;}
+.tag-suggest-item{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;border-radius:6px;cursor:pointer;font-size:13.5px;color:#374151;}
+.tag-suggest-item:hover{background:#f3f5fb;}
+.tag-suggest-item .mais{color:var(--blue-sesi);font-weight:700;font-size:16px;line-height:1;flex-shrink:0;}
+.tag-suggest-novo{color:var(--blue-sesi);font-weight:600;}
+.tag-suggest-vazio{color:#9aa5b8;cursor:default;}
+.tag-suggest-vazio:hover{background:none;}
 .modal-envio .disc-grupo{display:flex;flex-direction:column;gap:5px;min-width:120px;}
 .modal-envio .disc-area{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--blue-sesi);margin-bottom:2px;}
 .modal-envio .chk{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:400;color:#374151;cursor:pointer;margin:0;}
@@ -210,14 +238,14 @@ button.btn-forms{border:none;cursor:pointer;font-family:'Montserrat',sans-serif;
 .modal-envio .img-item .marcador{font-family:monospace;font-size:12px;font-weight:700;color:#fff;background:var(--blue-sesi);padding:3px 7px;border-radius:5px;flex:0 0 auto;}
 .modal-envio .img-item .tam{color:#6b7280;font-size:12px;}
 .modal-envio .img-item button{background:#fde8e8;color:#a11;border:none;border-radius:6px;padding:5px 9px;cursor:pointer;font-size:12px;}
-.modal-envio .aviso-marcador{display:flex;gap:10px;align-items:flex-start;background:#eaf2ff;border:1px solid #b9d2f5;border-left:4px solid var(--blue-sesi);border-radius:8px;padding:11px 13px;margin-top:8px;font-size:13px;color:#1a3a6b;line-height:1.45;}
+.modal-envio .aviso-marcador{display:flex;gap:10px;align-items:flex-start;background:#eaf2ff;border:1px solid #b9d2f5;border-left:4px solid var(--blue-sesi);border-radius:8px;padding:11px 13px;margin:8px 0 16px;font-size:13px;color:#1a3a6b;line-height:1.45;}
 .modal-envio .aviso-marcador code{background:#fff;border:1px solid #b9d2f5;border-radius:4px;padding:1px 6px;font-family:monospace;font-size:12px;color:var(--blue-sesi);font-weight:700;}
 .modal-envio .previa-caixa{border:1px solid #dde3ef;border-radius:10px;padding:16px 18px;background:#f8fafc;margin-top:4px;}
 .modal-envio .previa-titulo{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:10px;}
-.modal-envio .previa-enun{font-family:'Source Serif 4',serif;font-size:14.5px;line-height:1.65;color:#1a2236;text-align:justify;white-space:pre-wrap;}
+.modal-envio .previa-enun{font-family:'Times New Roman',Times,serif;font-size:12pt;line-height:1.65;color:#1a2236;text-align:justify;white-space:pre-wrap;}
 .modal-envio .previa-vazio{color:#9aa5b8;font-style:italic;font-size:13px;font-family:'Montserrat',sans-serif;}
 .modal-envio .previa-alts{list-style:none;margin:20px 0 0;padding:0;display:flex;flex-direction:column;gap:8px;}
-.modal-envio .previa-alts li{font-family:'Source Serif 4',serif;font-size:14px;line-height:1.5;color:#1a2236;display:flex;gap:8px;align-items:flex-start;}
+.modal-envio .previa-alts li{font-family:'Times New Roman',Times,serif;font-size:12pt;line-height:1.5;color:#1a2236;display:flex;gap:8px;align-items:flex-start;}
 .modal-envio .previa-letra{font-weight:700;color:var(--blue-sesi);flex-shrink:0;font-family:'Montserrat',sans-serif;}
 .modal-envio .previa-img{max-width:100%;max-height:220px;display:block;margin:16px 0 22px;border:1px solid #dde3ef;border-radius:8px;}
 .modal-envio .previa-formula-inline{display:inline-block;height:1.1em;vertical-align:-.2em;margin:0 2px;}
@@ -329,7 +357,7 @@ button.btn-forms{border:none;cursor:pointer;font-family:'Montserrat',sans-serif;
     </div>
     <div class="filtro-group">
       <label>Área de Conhecimento / Disciplina</label>
-      <div class="multi-select" id="ms-area">
+      <div class="multi-select" id="ms-area" data-panel="ms-area-panel">
         <button type="button" class="multi-select-btn" onclick="toggleMultiSelect('ms-area')">
           <span id="ms-area-label">Todas</span>
           <svg class="ms-arrow" width="11" height="7" viewBox="0 0 11 7" fill="none"><path d="M1 1L5.5 5.5L10 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -352,7 +380,7 @@ button.btn-forms{border:none;cursor:pointer;font-family:'Montserrat',sans-serif;
     </div>
     <div class="filtro-group">
       <label>Segmento / Série</label>
-      <div class="multi-select" id="ms-seg">
+      <div class="multi-select" id="ms-seg" data-panel="ms-seg-panel">
         <button type="button" class="multi-select-btn" onclick="toggleMultiSelect('ms-seg')">
           <span id="ms-seg-label">Todos</span>
           <svg class="ms-arrow" width="11" height="7" viewBox="0 0 11 7" fill="none"><path d="M1 1L5.5 5.5L10 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -428,57 +456,24 @@ button.btn-forms{border:none;cursor:pointer;font-family:'Montserrat',sans-serif;
     <div class="env-body">
       <div class="campo">
         <label>Disciplina(s) <span class="req">*</span></label>
-        <div class="disc-box" id="env-disc-box">
-          <div class="disc-grupo"><span class="disc-area">Humanas</span>
-            <label class="chk"><input type="checkbox" value="História"> História</label>
-            <label class="chk"><input type="checkbox" value="Geografia"> Geografia</label>
-            <label class="chk"><input type="checkbox" value="Filosofia"> Filosofia</label>
-            <label class="chk"><input type="checkbox" value="Sociologia"> Sociologia</label>
-          </div>
-          <div class="disc-grupo"><span class="disc-area">Natureza</span>
-            <label class="chk"><input type="checkbox" value="Biologia"> Biologia</label>
-            <label class="chk"><input type="checkbox" value="Física"> Física</label>
-            <label class="chk"><input type="checkbox" value="Química"> Química</label>
-          </div>
-          <div class="disc-grupo"><span class="disc-area">Linguagens</span>
-            <label class="chk"><input type="checkbox" value="Português"> Português</label>
-            <label class="chk"><input type="checkbox" value="Inglês"> Inglês</label>
-            <label class="chk"><input type="checkbox" value="Espanhol"> Espanhol</label>
-            <label class="chk"><input type="checkbox" value="Artes"> Artes</label>
-            <label class="chk"><input type="checkbox" value="Educação Física"> Ed. Física</label>
-            <label class="chk"><input type="checkbox" value="Literatura"> Literatura</label>
-          </div>
-          <div class="disc-grupo"><span class="disc-area">Matemática</span>
-            <label class="chk"><input type="checkbox" value="Matemática"> Matemática</label>
-          </div>
+        <div class="multi-select" id="env-ms-disc" data-panel="env-disc-panel">
+          <button type="button" class="multi-select-btn" onclick="toggleMultiSelect('env-ms-disc')">
+            <span id="env-ms-disc-label">Selecione</span>
+            <svg class="ms-arrow" width="11" height="7" viewBox="0 0 11 7" fill="none"><path d="M1 1L5.5 5.5L10 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="multi-select-panel" id="env-disc-panel"></div>
         </div>
         <small class="dica">Marque uma ou mais. Use várias para questões interdisciplinares.</small>
       </div>
 
       <div class="campo">
         <label>Segmento / Série <span class="req">*</span></label>
-        <div class="disc-box" id="env-seg-box">
-          <div class="disc-grupo"><span class="disc-area">Ensino Médio</span>
-            <label class="chk"><input type="checkbox" class="env-chk-seg" value="Ensino Médio"> Vale p/ todo o Médio</label>
-            <label class="chk"><input type="checkbox" class="env-chk-serie" value="1ª série"> 1ª série</label>
-            <label class="chk"><input type="checkbox" class="env-chk-serie" value="2ª série"> 2ª série</label>
-            <label class="chk"><input type="checkbox" class="env-chk-serie" value="3ª série"> 3ª série</label>
-          </div>
-          <div class="disc-grupo"><span class="disc-area">Anos Finais (EF)</span>
-            <label class="chk"><input type="checkbox" class="env-chk-seg" value="Anos Finais (EF)"> Vale p/ todos os Finais</label>
-            <label class="chk"><input type="checkbox" class="env-chk-serie" value="6º ano"> 6º ano</label>
-            <label class="chk"><input type="checkbox" class="env-chk-serie" value="7º ano"> 7º ano</label>
-            <label class="chk"><input type="checkbox" class="env-chk-serie" value="8º ano"> 8º ano</label>
-            <label class="chk"><input type="checkbox" class="env-chk-serie" value="9º ano"> 9º ano</label>
-          </div>
-          <div class="disc-grupo"><span class="disc-area">Anos Iniciais (EF)</span>
-            <label class="chk"><input type="checkbox" class="env-chk-seg" value="Anos Iniciais (EF)"> Vale p/ todos os Iniciais</label>
-            <label class="chk"><input type="checkbox" class="env-chk-serie" value="1º ano"> 1º ano</label>
-            <label class="chk"><input type="checkbox" class="env-chk-serie" value="2º ano"> 2º ano</label>
-            <label class="chk"><input type="checkbox" class="env-chk-serie" value="3º ano"> 3º ano</label>
-            <label class="chk"><input type="checkbox" class="env-chk-serie" value="4º ano"> 4º ano</label>
-            <label class="chk"><input type="checkbox" class="env-chk-serie" value="5º ano"> 5º ano</label>
-          </div>
+        <div class="multi-select" id="env-ms-seg" data-panel="env-seg-panel">
+          <button type="button" class="multi-select-btn" onclick="toggleMultiSelect('env-ms-seg')">
+            <span id="env-ms-seg-label">Selecione</span>
+            <svg class="ms-arrow" width="11" height="7" viewBox="0 0 11 7" fill="none"><path d="M1 1L5.5 5.5L10 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="multi-select-panel" id="env-seg-panel"></div>
         </div>
         <small class="dica">Marque o segmento inteiro se a questão serve pra qualquer série dele (ex: ENEM/SSA), ou marque a(s) série(s) específica(s) se for direcionada.</small>
       </div>
@@ -500,6 +495,17 @@ button.btn-forms{border:none;cursor:pointer;font-family:'Montserrat',sans-serif;
       <div class="campo">
         <label>Habilidades SESI sugeridas</label>
         <input id="env-habilidades" placeholder="Ex: SESI.EM13CHS01.s.01">
+      </div>
+
+      <div class="campo">
+        <label>Conteúdos trabalhados</label>
+        <div class="tags-input-box" id="env-conteudos-box">
+          <div class="tags-chips" id="env-conteudos-chips"></div>
+          <input type="text" id="env-conteudos-input" placeholder="Buscar ou adicionar um conteúdo..." autocomplete="off"
+            oninput="filtrarSugestoesConteudo('env')" onfocus="filtrarSugestoesConteudo('env')" onkeydown="onKeydownConteudo(event,'env')">
+          <div class="tags-suggest-panel" id="env-conteudos-suggest" data-prefixo="env"></div>
+        </div>
+        <small class="dica">Digite pra buscar um conteúdo já usado por outras questões, ou adicione um novo se não existir.</small>
       </div>
 
       <div class="aviso-marcador">
@@ -745,17 +751,38 @@ function segmentoDeHabilidades(habilidades){
 }
 
 // Abre/fecha um dropdown multi-select, fechando os outros
+function fecharMultiSelect(el){
+  el.classList.remove('open');
+  const panel = document.getElementById(el.dataset.panel);
+  if(panel) panel.classList.remove('mm-aberto');
+}
 function toggleMultiSelect(id){
   const el = document.getElementById(id);
+  const panel = document.getElementById(el.dataset.panel);
   const estavaAberto = el.classList.contains('open');
-  document.querySelectorAll('.multi-select.open').forEach(m=>m.classList.remove('open'));
-  if(!estavaAberto) el.classList.add('open');
+  document.querySelectorAll('.multi-select.open').forEach(fecharMultiSelect);
+  if(estavaAberto || !panel) return;
+  el.classList.add('open');
+  // Move o painel pro <body> (escapa de qualquer contêiner com overflow/scroll que cortaria o dropdown)
+  if(panel.parentElement !== document.body) document.body.appendChild(panel);
+  const btn = el.querySelector('.multi-select-btn');
+  const r = btn.getBoundingClientRect();
+  panel.style.top = (r.bottom + 6) + 'px';
+  panel.style.left = r.left + 'px';
+  panel.style.minWidth = r.width + 'px';
+  panel.classList.add('mm-aberto');
 }
-// Fecha os dropdowns ao clicar fora
+// Fecha os dropdowns ao clicar fora (o painel agora pode estar fora do .multi-select, no <body>)
 document.addEventListener('click', function(e){
-  if(!e.target.closest('.multi-select')){
-    document.querySelectorAll('.multi-select.open').forEach(m=>m.classList.remove('open'));
+  if(!e.target.closest('.multi-select') && !e.target.closest('.multi-select-panel')){
+    document.querySelectorAll('.multi-select.open').forEach(fecharMultiSelect);
   }
+});
+// Fecha ao rolar o formulário (o painel flutuante não acompanha o scroll do modal)
+document.querySelectorAll('.env-body, .modal-body').forEach(cont=>{
+  cont.addEventListener('scroll', () => {
+    document.querySelectorAll('.multi-select.open').forEach(fecharMultiSelect);
+  });
 });
 
 // Expande/recolhe a sub-lista de disciplinas de UMA área (não afeta os checkboxes)
@@ -843,6 +870,127 @@ function atualizarLabelSegmentoSerie(){
   if(total===1){ span.textContent = segmentosSelecionados[0] || seriesSelecionadas[0]; return; }
   span.textContent = total+' selecionados';
 }
+
+/* =====================================================================
+   MULTI-SELECT HIERÁRQUICO GENÉRICO (reutilizado nos formulários de
+   envio/edição, além do filtro público). panelId precisa ser único por
+   instância pra não colidir com os ids das sub-listas.
+   ===================================================================== */
+function montarMultiSelectGenerico(panelId, mapa, classGrupo, classItem, onChangeFn){
+  const panel = document.getElementById(panelId);
+  if(!panel) return;
+  panel.innerHTML = Object.keys(mapa).map(grupo=>{
+    const itens = mapa[grupo] || [];
+    const idGrupo = (panelId+'_'+grupo).replace(/[^a-zA-Z0-9]/g,'_');
+    return `
+      <div class="ms-area-item">
+        <div class="ms-area-row">
+          <label><input type="checkbox" class="${classGrupo}" value="${grupo}" onchange="${onChangeFn}()"> ${grupo}</label>
+          <button type="button" class="ms-area-toggle" onclick="toggleMsSub('${idGrupo}', event)">
+            <svg width="10" height="6" viewBox="0 0 11 7" fill="none"><path d="M1 1L5.5 5.5L10 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+        <div class="ms-disc-sublist" id="sub_${idGrupo}">
+          ${itens.map(it=>'<label class="ms-option"><input type="checkbox" class="'+classItem+'" value="'+it+'" onchange="'+onChangeFn+'()"> '+it+'</label>').join('')}
+        </div>
+      </div>`;
+  }).join('');
+}
+function toggleMsSub(idGrupo, ev){
+  ev.stopPropagation();
+  const sub = document.getElementById('sub_'+idGrupo);
+  const btn = ev.currentTarget;
+  const abrir = !sub.classList.contains('expanded');
+  sub.classList.toggle('expanded', abrir);
+  btn.classList.toggle('expanded', abrir);
+}
+function atualizarMsLabelGenerico(labelId, classGrupo, classItem, textoVazio){
+  const span = document.getElementById(labelId);
+  if(!span) return;
+  const marcados = [...document.querySelectorAll('.'+classGrupo+':checked, .'+classItem+':checked')];
+  if(marcados.length===0){ span.textContent = textoVazio; return; }
+  if(marcados.length===1){ span.textContent = marcados[0].value; return; }
+  span.textContent = marcados.length+' selecionadas';
+}
+
+// ---- Instâncias do formulário "Enviar nova questão" (site público) ----
+montarMultiSelectGenerico('env-disc-panel', DISC_POR_AREA, 'env-disc-grupo', 'env-disc-item', 'onEnvDiscChange');
+montarMultiSelectGenerico('env-seg-panel', SERIES_POR_SEGMENTO, 'env-seg-grupo', 'env-seg-item', 'onEnvSegChange');
+function onEnvDiscChange(){ atualizarMsLabelGenerico('env-ms-disc-label','env-disc-grupo','env-disc-item','Selecione'); }
+function onEnvSegChange(){ atualizarMsLabelGenerico('env-ms-seg-label','env-seg-grupo','env-seg-item','Selecione'); }
+
+/* =====================================================================
+   CONTEÚDOS TRABALHADOS: campo de tags com busca + adicionar (estilo
+   "adicionar competência"), chips removíveis com ×.
+   ===================================================================== */
+let envConteudosSelecionados = [];
+let mConteudosSelecionados = []; // usado apenas no painel do analista; existe aqui só pra manter o mesmo bloco de código nos dois arquivos
+function poolConteudos(){
+  const set = new Set();
+  (typeof QUESTOES!=='undefined' ? QUESTOES : []).forEach(q=>{
+    (q.conteudos||[]).forEach(c=>{ if(c) set.add(c); });
+  });
+  return [...set].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+}
+function renderConteudosChips(prefixo){
+  const arr = prefixo==='env' ? envConteudosSelecionados : mConteudosSelecionados;
+  const cont = document.getElementById(prefixo+'-conteudos-chips');
+  if(!cont) return;
+  cont.innerHTML = arr.map((c,i)=>`<span class="tag-chip">${escaparEnvio(c)}<button type="button" onclick="removerConteudo('${prefixo}',${i})">&times;</button></span>`).join('');
+}
+function adicionarConteudo(prefixo, texto){
+  texto = String(texto||'').trim();
+  if(!texto) return;
+  const arr = prefixo==='env' ? envConteudosSelecionados : mConteudosSelecionados;
+  if(arr.some(c=>c.toLowerCase()===texto.toLowerCase())){ limparInputConteudo(prefixo); return; }
+  arr.push(texto);
+  renderConteudosChips(prefixo);
+  limparInputConteudo(prefixo);
+}
+function removerConteudo(prefixo, idx){
+  const arr = prefixo==='env' ? envConteudosSelecionados : mConteudosSelecionados;
+  arr.splice(idx,1);
+  renderConteudosChips(prefixo);
+}
+function limparInputConteudo(prefixo){
+  const inp = document.getElementById(prefixo+'-conteudos-input');
+  if(inp) inp.value='';
+  const painel = document.getElementById(prefixo+'-conteudos-suggest');
+  if(painel) painel.classList.remove('aberto');
+}
+function filtrarSugestoesConteudo(prefixo){
+  const inp = document.getElementById(prefixo+'-conteudos-input');
+  const termo = inp.value.trim().toLowerCase();
+  const arr = prefixo==='env' ? envConteudosSelecionados : mConteudosSelecionados;
+  const pool = poolConteudos().filter(c=>!arr.some(s=>s.toLowerCase()===c.toLowerCase()));
+  const painel = document.getElementById(prefixo+'-conteudos-suggest');
+  const itens = (termo ? pool.filter(c=>c.toLowerCase().includes(termo)) : pool).slice(0,8);
+  let html = itens.map(c=>`<div class="tag-suggest-item" data-valor="${escaparEnvio(c)}"><span>${escaparEnvio(c)}</span><span class="mais">+</span></div>`).join('');
+  const existeExato = pool.some(c=>c.toLowerCase()===termo) || arr.some(c=>c.toLowerCase()===termo);
+  if(termo && !existeExato){
+    html += `<div class="tag-suggest-item tag-suggest-novo" data-valor="${escaparEnvio(inp.value.trim())}"><span>Adicionar novo: "${escaparEnvio(inp.value.trim())}"</span><span class="mais">+</span></div>`;
+  }
+  painel.innerHTML = html || '<div class="tag-suggest-item tag-suggest-vazio">Digite pra buscar ou criar um conteúdo</div>';
+  painel.classList.add('aberto');
+}
+function onKeydownConteudo(ev, prefixo){
+  if(ev.key==='Enter'){
+    ev.preventDefault();
+    const inp = document.getElementById(prefixo+'-conteudos-input');
+    if(inp.value.trim()) adicionarConteudo(prefixo, inp.value.trim());
+  }
+}
+document.addEventListener('click', (e)=>{
+  const item = e.target.closest('.tag-suggest-item[data-valor]');
+  if(item){
+    const painel = item.closest('.tags-suggest-panel');
+    adicionarConteudo(painel.dataset.prefixo, item.dataset.valor);
+    return;
+  }
+  if(!e.target.closest('.tags-input-box')){
+    document.querySelectorAll('.tags-suggest-panel.aberto').forEach(p=>p.classList.remove('aberto'));
+  }
+});
 
 function onFiltroAreaDiscChange(){
   areasSelecionadas = Array.from(document.querySelectorAll('.chk-area:checked')).map(c=>c.value);
@@ -1515,6 +1663,7 @@ function normalizarQuestao(q){
     habilidades:habs,
     segmento: q.segmento ? String(q.segmento).split(',').map(s=>s.trim()).filter(Boolean) : (segmentoDeHabilidades(habs) ? [segmentoDeHabilidades(habs)] : []),
     serie: q.serie ? String(q.serie).split(',').map(s=>s.trim()).filter(Boolean) : [],
+    conteudos: q.conteudos ? String(q.conteudos).split(',').map(s=>s.trim()).filter(Boolean) : [],
     imagens:q.imagens||[]
   };
 }
@@ -1797,7 +1946,24 @@ function salvarCursorRicoEnvio(campoId){
 }
 ['env-enunciado','env-alt-a','env-alt-b','env-alt-c','env-alt-d','env-alt-e'].forEach(id => {
   const el = document.getElementById(id);
-  if (el) ['keyup','mouseup','blur'].forEach(ev => el.addEventListener(ev, () => salvarCursorRicoEnvio(id)));
+  if (!el) return;
+  ['keyup','mouseup','blur'].forEach(ev => el.addEventListener(ev, () => salvarCursorRicoEnvio(id)));
+  // Cola sempre como texto puro (sem fonte/tamanho/estilo da origem), pra herdar a fonte do campo (Times 12) igual ao texto digitado
+  el.addEventListener('paste', (e) => {
+    e.preventDefault();
+    const texto = (e.clipboardData || window.clipboardData).getData('text/plain');
+    if (document.queryCommandSupported && document.queryCommandSupported('insertText')) {
+      document.execCommand('insertText', false, texto);
+    } else {
+      const sel = window.getSelection();
+      if (sel.rangeCount) {
+        const range = sel.getRangeAt(0);
+        range.deleteContents();
+        range.insertNode(document.createTextNode(texto));
+        range.collapse(false);
+      }
+    }
+  });
 });
 // Duplo clique numa fórmula já inserida: reabre o editor pra ajustar
 document.addEventListener('dblclick', (e) => {
@@ -1921,9 +2087,9 @@ async function confirmarFormulaEnvio(){
 let dadosPendentesEnvioModal = null;
 
 function revisarEnvioModal(){
-  const discMarcadas = [...document.querySelectorAll('#env-disc-box input:checked')].map(c=>c.value);
-  const segMarcados = [...document.querySelectorAll('.env-chk-seg:checked')].map(c=>c.value);
-  const seriesMarcadas = [...document.querySelectorAll('.env-chk-serie:checked')].map(c=>c.value);
+  const discMarcadas = [...document.querySelectorAll('#env-disc-panel input:checked')].map(c=>c.value);
+  const segMarcados = [...document.querySelectorAll('.env-seg-grupo:checked')].map(c=>c.value);
+  const seriesMarcadas = [...document.querySelectorAll('.env-seg-item:checked')].map(c=>c.value);
   const obrig = {
     enunciado: htmlParaTextoEnvio(document.getElementById('env-enunciado')),
     gabarito: document.getElementById('env-gabarito').value,
@@ -1952,6 +2118,7 @@ function revisarEnvioModal(){
     tipo_prova: document.getElementById('env-tipo-prova').value || null,
     ano: document.getElementById('env-ano').value ? Number(document.getElementById('env-ano').value) : null,
     habilidades_sugeridas: document.getElementById('env-habilidades').value || null,
+    conteudos: envConteudosSelecionados.join(', '),
     comentarios: document.getElementById('env-comentarios').value || null,
     professor_nome: obrig.professor_nome,
     professor_unidade: obrig.professor_unidade,
@@ -2016,8 +2183,12 @@ function limparFormEnvio(){
    'env-professor-nome','env-professor-unidade','env-professor-email'].forEach(id => document.getElementById(id).value = '');
   ['env-enunciado','env-alt-a','env-alt-b','env-alt-c','env-alt-d','env-alt-e'].forEach(id => document.getElementById(id).innerHTML = '');
   ['env-gabarito','env-tipo-prova'].forEach(id => document.getElementById(id).value = '');
-  document.querySelectorAll('#env-disc-box input:checked').forEach(c => c.checked = false);
-  document.querySelectorAll('#env-seg-box input:checked').forEach(c => c.checked = false);
+  document.querySelectorAll('#env-disc-panel input:checked').forEach(c => c.checked = false);
+  document.querySelectorAll('#env-seg-panel input:checked').forEach(c => c.checked = false);
+  onEnvDiscChange(); onEnvSegChange();
+  envConteudosSelecionados = [];
+  renderConteudosChips('env');
+  limparInputConteudo('env');
   imagensAnexadasEnvio = [];
 }
 
