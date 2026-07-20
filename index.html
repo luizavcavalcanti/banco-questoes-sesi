@@ -481,9 +481,13 @@ button.btn-forms{border:none;cursor:pointer;font-family:'Montserrat',sans-serif;
       <div class="grid2">
         <div class="campo">
           <label>Tipo de prova</label>
-          <select id="env-tipo-prova">
+          <select id="env-tipo-prova" onchange="onTipoProvaChange('env')">
             <option value="">—</option>
-            <option>ENEM</option><option>SSA</option><option>PASSE</option><option>Autoral</option><option>SAEB</option><option>ITA</option><option>Outro</option>
+            <option>ENEM</option>
+            <option value="SSA.1">SSA — 1ª série</option>
+            <option value="SSA.2">SSA — 2ª série</option>
+            <option value="SSA.3">SSA — 3ª série</option>
+            <option>PASSE</option><option>Autoral</option><option>SAEB</option><option>ITA</option><option>Outro</option>
           </select>
         </div>
         <div class="campo">
@@ -918,6 +922,22 @@ montarMultiSelectGenerico('env-disc-panel', DISC_POR_AREA, 'env-disc-grupo', 'en
 montarMultiSelectGenerico('env-seg-panel', SERIES_POR_SEGMENTO, 'env-seg-grupo', 'env-seg-item', 'onEnvSegChange');
 function onEnvDiscChange(){ atualizarMsLabelGenerico('env-ms-disc-label','env-disc-grupo','env-disc-item','Selecione'); }
 function onEnvSegChange(){ atualizarMsLabelGenerico('env-ms-seg-label','env-seg-grupo','env-seg-item','Selecione'); }
+
+// Ao escolher SSA.1/2/3 no tipo de prova, marca automaticamente "Ensino Médio" + a série
+// correspondente no campo Segmento/Série (evita esquecer de marcar os dois separadamente)
+const SERIE_POR_TIPO_PROVA = {'SSA.1':'1ª série', 'SSA.2':'2ª série', 'SSA.3':'3ª série'};
+function onTipoProvaChange(prefixo){
+  const sel = document.getElementById(prefixo+'-tipo-prova');
+  const serieAlvo = SERIE_POR_TIPO_PROVA[sel.value];
+  if(!serieAlvo) return;
+  const painelId = prefixo==='env' ? 'env-seg-panel' : 'm-seg-panel';
+  const panel = document.getElementById(painelId);
+  if(!panel) return;
+  panel.querySelectorAll('input[type="checkbox"]').forEach(c=>{
+    if(c.value === 'Ensino Médio' || c.value === serieAlvo) c.checked = true;
+  });
+  if(prefixo==='env') onEnvSegChange(); else onMSegChange();
+}
 
 /* =====================================================================
    CONTEÚDOS TRABALHADOS: campo de tags com busca + adicionar (estilo
