@@ -61,10 +61,10 @@ body{font-family:'Montserrat',sans-serif;background:var(--navy);color:var(--whit
 
 /* Item de Área com setinha de expansão (sub-lista de disciplinas) */
 .ms-area-item{border-radius:6px;margin-bottom:1px;}
-.ms-area-row{display:flex;align-items:center;gap:6px;padding:6px 4px 6px 8px;border-radius:6px;}
-.ms-area-row label input[type="checkbox"]{width:15px;height:15px;accent-color:var(--blue-sesi);cursor:pointer;flex-shrink:0;margin:0;}
+.ms-area-row{display:flex;align-items:center;gap:8px;padding:6px 4px 6px 8px;border-radius:6px;}
+.ms-area-row input[type="checkbox"]{width:15px;height:15px;accent-color:var(--blue-sesi);cursor:pointer;flex-shrink:0;margin:0;}
 .ms-area-row:hover{background:rgba(255,255,255,.06);}
-.ms-area-row label{display:block;text-transform:none;letter-spacing:normal;font-weight:400;display:flex;align-items:center;gap:8px;flex:1;cursor:pointer;font-size:13px;color:rgba(255,255,255,.85);white-space:nowrap;margin-bottom:0;}
+.ms-area-label-text{flex:1;cursor:pointer;font-size:13px;font-weight:400;text-transform:none;letter-spacing:normal;color:rgba(255,255,255,.85);white-space:nowrap;user-select:none;}
 .ms-area-toggle{background:none;border:none;color:rgba(255,255,255,.45);cursor:pointer;padding:4px 6px;display:flex;align-items:center;transition:transform .2s, color .2s;flex-shrink:0;}
 .ms-area-toggle:hover{color:white;}
 .ms-area-toggle.expanded{transform:rotate(180deg);color:white;}
@@ -176,6 +176,7 @@ button.btn-forms{border:none;cursor:pointer;font-family:'Montserrat',sans-serif;
 .modal-envio .campo{margin-bottom:16px;}
 .modal-envio label{display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:6px;}
 .modal-envio .req{color:#c0392b;}
+.modal-envio .opcional{color:#9aa5b8;font-weight:400;font-size:12px;}
 .modal-envio input,.modal-envio textarea,.modal-envio select{width:100%;padding:11px 12px;border:1px solid #dde3ef;border-radius:9px;font-size:14px;font-family:inherit;color:#1a2236;background:#fff;}
 .modal-envio .rich-editor{width:100%;min-height:90px;border:1px solid #dde3ef;border-radius:9px;padding:11px 12px;font-size:12pt;font-family:'Times New Roman',Times,serif;line-height:1.6;color:#1a2236;background:#fff;outline:none;}
 .modal-envio .rich-editor:focus{border-color:var(--blue-sesi);}
@@ -204,7 +205,7 @@ button.btn-forms{border:none;cursor:pointer;font-family:'Montserrat',sans-serif;
 .modal-envio .multi-select.open .ms-arrow{color:var(--blue-sesi);}
 .modal-envio .multi-select-panel{background:#fff;border:1px solid #dde3ef;box-shadow:0 8px 24px rgba(0,0,0,.14);}
 .modal-envio .ms-area-row:hover{background:#f3f5fb;}
-.modal-envio .ms-area-row label{color:#1a2236;}
+.modal-envio .ms-area-label-text{color:#1a2236;}
 .modal-envio .ms-option{color:#374151;}
 .modal-envio .ms-option:hover{background:#f3f5fb;}
 .modal-envio .ms-area-toggle{color:#9aa5b8;}
@@ -497,12 +498,12 @@ button.btn-forms{border:none;cursor:pointer;font-family:'Montserrat',sans-serif;
       </div>
 
       <div class="campo">
-        <label>Habilidades SESI sugeridas</label>
+        <label>Habilidades SESI sugeridas <span class="opcional">(opcional)</span></label>
         <input id="env-habilidades" placeholder="Ex: SESI.EM13CHS01.s.01">
       </div>
 
       <div class="campo">
-        <label>Conteúdos trabalhados</label>
+        <label>Conteúdos trabalhados <span class="req">*</span></label>
         <div class="tags-input-box" id="env-conteudos-box">
           <div class="tags-chips" id="env-conteudos-chips"></div>
           <input type="text" id="env-conteudos-input" placeholder="Buscar ou adicionar um conteúdo..." autocomplete="off"
@@ -789,37 +790,6 @@ document.querySelectorAll('.env-body, .modal-body').forEach(cont=>{
   });
 });
 
-// Expande/recolhe a sub-lista de disciplinas de UMA área (não afeta os checkboxes)
-function toggleAreaDisciplinas(area, ev){
-  ev.stopPropagation();
-  const sub = document.getElementById('sub-'+area);
-  const btn = ev.currentTarget;
-  const abrir = !sub.classList.contains('expanded');
-  sub.classList.toggle('expanded', abrir);
-  btn.classList.toggle('expanded', abrir);
-}
-
-// Monta o painel único: cada área com checkbox próprio + setinha + sub-lista de disciplinas
-function montarPainelAreaDisciplina(){
-  const panel = document.getElementById('ms-area-panel');
-  panel.innerHTML = Object.keys(DISC_POR_AREA).map(area=>{
-    const discs = DISC_POR_AREA[area];
-    const idArea = area.replace(/\s/g,'_');
-    return `
-      <div class="ms-area-item">
-        <div class="ms-area-row">
-          <label><input type="checkbox" class="chk-area" value="${area}" onchange="onFiltroAreaDiscChange()"> ${area}</label>
-          <button type="button" class="ms-area-toggle" onclick="toggleAreaDisciplinas('${idArea}', event)">
-            <svg width="10" height="6" viewBox="0 0 11 7" fill="none"><path d="M1 1L5.5 5.5L10 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
-        </div>
-        <div class="ms-disc-sublist" id="sub-${idArea}">
-          ${discs.map(d=>'<label class="ms-option"><input type="checkbox" class="chk-disc" value="'+d+'" onchange="onFiltroAreaDiscChange()"> '+d+'</label>').join('')}
-        </div>
-      </div>`;
-  }).join('');
-}
-
 function atualizarLabelAreaDisc(){
   const span = document.getElementById('ms-area-label');
   const totalArea = areasSelecionadas.length;
@@ -828,36 +798,6 @@ function atualizarLabelAreaDisc(){
   if(total===0){ span.textContent = 'Todas'; return; }
   if(total===1){ span.textContent = areasSelecionadas[0] || discsSelecionadas[0]; return; }
   span.textContent = total+' selecionadas';
-}
-
-// Monta o painel de Segmento/Série: mesmo padrão de ms-area (checkbox do segmento + setinha + sub-lista de séries)
-function montarPainelSegmentoSerie(){
-  const panel = document.getElementById('ms-seg-panel');
-  panel.innerHTML = Object.keys(SERIES_POR_SEGMENTO).map(seg=>{
-    const series = SERIES_POR_SEGMENTO[seg];
-    const idSeg = seg.replace(/[^a-zA-Z0-9]/g,'_');
-    return `
-      <div class="ms-area-item">
-        <div class="ms-area-row">
-          <label><input type="checkbox" class="chk-seg" value="${seg}" onchange="onFiltroSegmentoSerieChange()"> ${seg}</label>
-          <button type="button" class="ms-area-toggle" onclick="toggleSegmentoSeries('${idSeg}', event)">
-            <svg width="10" height="6" viewBox="0 0 11 7" fill="none"><path d="M1 1L5.5 5.5L10 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
-        </div>
-        <div class="ms-disc-sublist" id="sub-seg-${idSeg}">
-          ${series.map(s=>'<label class="ms-option"><input type="checkbox" class="chk-serie" value="'+s+'" onchange="onFiltroSegmentoSerieChange()"> '+s+'</label>').join('')}
-        </div>
-      </div>`;
-  }).join('');
-}
-
-function toggleSegmentoSeries(idSeg, ev){
-  ev.stopPropagation();
-  const sub = document.getElementById('sub-seg-'+idSeg);
-  const btn = ev.currentTarget;
-  const abrir = !sub.classList.contains('expanded');
-  sub.classList.toggle('expanded', abrir);
-  btn.classList.toggle('expanded', abrir);
 }
 
 function onFiltroSegmentoSerieChange(){
@@ -876,9 +816,16 @@ function atualizarLabelSegmentoSerie(){
 }
 
 /* =====================================================================
-   MULTI-SELECT HIERÁRQUICO GENÉRICO (reutilizado nos formulários de
-   envio/edição, além do filtro público). panelId precisa ser único por
-   instância pra não colidir com os ids das sub-listas.
+   MULTI-SELECT HIERÁRQUICO GENÉRICO — usado em TODO lugar que tem esse
+   padrão (filtro público, formulário de envio, painel do analista).
+   Regra de interação:
+   - Clicar no TEXTO do grupo ou na setinha → só expande/recolhe, nunca marca nada
+   - Clicar EXATAMENTE na caixinha do grupo → marca/desmarca TODOS os itens dele
+   - Clicar numa caixinha de item → marca só aquele item, e a caixinha do grupo
+     fica "indeterminada" (visual de parcialmente marcado) sem entrar como valor
+     selecionado sozinha — assim a coleta de dados nunca inclui o nome do grupo
+     por engano quando só alguns itens estão marcados.
+   panelId precisa ser único por instância pra não colidir os ids das sub-listas.
    ===================================================================== */
 function montarMultiSelectGenerico(panelId, mapa, classGrupo, classItem, onChangeFn){
   const panel = document.getElementById(panelId);
@@ -889,24 +836,52 @@ function montarMultiSelectGenerico(panelId, mapa, classGrupo, classItem, onChang
     return `
       <div class="ms-area-item">
         <div class="ms-area-row">
-          <label><input type="checkbox" class="${classGrupo}" value="${grupo}" onchange="${onChangeFn}()"> ${grupo}</label>
+          <input type="checkbox" class="${classGrupo}" value="${grupo}" data-grupo="${idGrupo}"
+            onchange="onGrupoCheckboxChange(this,'${idGrupo}','${onChangeFn}')">
+          <span class="ms-area-label-text" onclick="toggleMsSub('${idGrupo}', event)">${grupo}</span>
           <button type="button" class="ms-area-toggle" onclick="toggleMsSub('${idGrupo}', event)">
             <svg width="10" height="6" viewBox="0 0 11 7" fill="none"><path d="M1 1L5.5 5.5L10 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
         </div>
         <div class="ms-disc-sublist" id="sub_${idGrupo}">
-          ${itens.map(it=>'<label class="ms-option"><input type="checkbox" class="'+classItem+'" value="'+it+'" onchange="'+onChangeFn+'()"> '+it+'</label>').join('')}
+          ${itens.map(it=>'<label class="ms-option"><input type="checkbox" class="'+classItem+'" value="'+it+'" data-grupo="'+idGrupo+'" onchange="onItemCheckboxChange(this,\''+idGrupo+'\',\''+onChangeFn+'\')"> '+it+'</label>').join('')}
         </div>
       </div>`;
   }).join('');
 }
+// Clicar no texto/setinha: só expande, nunca mexe em checkbox
 function toggleMsSub(idGrupo, ev){
   ev.stopPropagation();
   const sub = document.getElementById('sub_'+idGrupo);
-  const btn = ev.currentTarget;
+  const item = sub.closest('.ms-area-item');
+  const btn = item.querySelector('.ms-area-toggle');
   const abrir = !sub.classList.contains('expanded');
   sub.classList.toggle('expanded', abrir);
   btn.classList.toggle('expanded', abrir);
+}
+// Clicar exatamente na caixinha do grupo: marca/desmarca todos os itens dele
+function onGrupoCheckboxChange(checkbox, idGrupo, onChangeFn){
+  const sub = document.getElementById('sub_'+idGrupo);
+  if(sub){
+    sub.querySelectorAll('input[type="checkbox"]').forEach(c => c.checked = checkbox.checked);
+  }
+  checkbox.indeterminate = false;
+  if(onChangeFn && typeof window[onChangeFn]==='function') window[onChangeFn]();
+}
+// Clicar numa caixinha de item: marca só ele, e reflete o estado (todos/alguns/nenhum) no grupo
+function onItemCheckboxChange(checkbox, idGrupo, onChangeFn){
+  atualizarEstadoGrupo(idGrupo);
+  if(onChangeFn && typeof window[onChangeFn]==='function') window[onChangeFn]();
+}
+function atualizarEstadoGrupo(idGrupo){
+  const grupoCheckbox = document.querySelector('.ms-area-row input[data-grupo="'+idGrupo+'"]');
+  const sub = document.getElementById('sub_'+idGrupo);
+  if(!grupoCheckbox || !sub) return;
+  const filhos = [...sub.querySelectorAll('input[type="checkbox"]')];
+  const marcados = filhos.filter(c=>c.checked).length;
+  if(marcados===0){ grupoCheckbox.checked=false; grupoCheckbox.indeterminate=false; }
+  else if(marcados===filhos.length){ grupoCheckbox.checked=true; grupoCheckbox.indeterminate=false; }
+  else { grupoCheckbox.checked=false; grupoCheckbox.indeterminate=true; }
 }
 function atualizarMsLabelGenerico(labelId, classGrupo, classItem, textoVazio){
   const span = document.getElementById(labelId);
@@ -916,6 +891,10 @@ function atualizarMsLabelGenerico(labelId, classGrupo, classItem, textoVazio){
   if(marcados.length===1){ span.textContent = marcados[0].value; return; }
   span.textContent = marcados.length+' selecionadas';
 }
+
+// ---- Instâncias do filtro público (Área/Disciplina e Segmento/Série) ----
+montarMultiSelectGenerico('ms-area-panel', DISC_POR_AREA, 'chk-area', 'chk-disc', 'onFiltroAreaDiscChange');
+montarMultiSelectGenerico('ms-seg-panel', SERIES_POR_SEGMENTO, 'chk-seg', 'chk-serie', 'onFiltroSegmentoSerieChange');
 
 // ---- Instâncias do formulário "Enviar nova questão" (site público) ----
 montarMultiSelectGenerico('env-disc-panel', DISC_POR_AREA, 'env-disc-grupo', 'env-disc-item', 'onEnvDiscChange');
@@ -1023,7 +1002,7 @@ function filtrar(){
   const busca=document.getElementById('busca').value.toLowerCase();
   const tipo=document.getElementById('sel-tipo').value;
   const res=QUESTOES.filter(q=>{
-    const mb=!busca||q.enunciado.toLowerCase().includes(busca)||(q.pergunta||'').toLowerCase().includes(busca)||(q.habilidades||[]).join(' ').toLowerCase().includes(busca)||q.alternativas.some(a=>a.texto.toLowerCase().includes(busca));
+    const mb=!busca||q.enunciado.toLowerCase().includes(busca)||(q.pergunta||'').toLowerCase().includes(busca)||(q.habilidades||[]).join(' ').toLowerCase().includes(busca)||(q.conteudos||[]).join(' ').toLowerCase().includes(busca)||q.alternativas.some(a=>a.texto.toLowerCase().includes(busca));
     // Segmento: bate se ALGUM segmento marcado bater com o(s) segmento(s) da questão (a questão vale pro segmento inteiro)
     const segOk = segmentosSelecionados.length===0 || segmentosSelecionados.some(s=>(q.segmento||[]).includes(s));
     // Série: bate só se a questão tiver marcada especificamente essa série (igual disciplina dentro de área)
@@ -1705,8 +1684,6 @@ async function carregarBanco(){
       if(!data || data.length<lote) fim=true; else de+=lote;
     }
     QUESTOES=todas.map(normalizarQuestao);
-    montarPainelAreaDisciplina();
-    montarPainelSegmentoSerie();
     filtrar();
   }catch(e){
     grid.innerHTML='<div class="vazio">Não foi possível carregar o banco de questões.<br><small>'+e.message+'</small></div>';
@@ -2122,6 +2099,7 @@ function revisarEnvioModal(){
   }
   if (discMarcadas.length===0){ mostrarStatusEnvio('erro', 'Selecione pelo menos uma disciplina.'); return; }
   if (segMarcados.length===0 && seriesMarcadas.length===0){ mostrarStatusEnvio('erro', 'Selecione ao menos um Segmento ou Série.'); return; }
+  if (envConteudosSelecionados.length===0){ mostrarStatusEnvio('erro', 'Adicione ao menos um conteúdo trabalhado.'); return; }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(obrig.professor_email)){
     mostrarStatusEnvio('erro', 'E-mail inválido.'); return;
   }
