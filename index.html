@@ -864,6 +864,11 @@ function onGrupoCheckboxChange(checkbox, idGrupo, onChangeFn){
   const sub = document.getElementById('sub_'+idGrupo);
   if(sub){
     sub.querySelectorAll('input[type="checkbox"]').forEach(c => c.checked = checkbox.checked);
+    // desce a sublista pra mostrar visualmente o que acabou de ser marcado/desmarcado
+    const item = sub.closest('.ms-area-item');
+    const btn = item.querySelector('.ms-area-toggle');
+    sub.classList.add('expanded');
+    if(btn) btn.classList.add('expanded');
   }
   checkbox.indeterminate = false;
   if(onChangeFn && typeof window[onChangeFn]==='function') window[onChangeFn]();
