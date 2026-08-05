@@ -135,6 +135,8 @@ body{font-family:'Montserrat',sans-serif;background:var(--navy);color:var(--whit
 .alt .card-img{max-width:260px;width:auto;max-height:160px;margin:4px 0;}
 .card-formula-img{display:inline-block;height:1.1em;width:auto;vertical-align:-.2em;margin:0 2px;border:none;border-radius:0;}
 .pergunta{font-family:'Montserrat',sans-serif;font-size:13px;font-weight:600;color:#0f172a;margin-bottom:10px;text-align:justify;text-justify:inter-word;}
+.discursiva-aviso{font-family:'Montserrat',sans-serif;font-size:12px;font-weight:600;color:var(--blue-sesi);background:#eef4fc;border-radius:6px;padding:8px 12px;margin-bottom:8px;}
+.resposta-modelo{font-family:'Source Serif 4',serif;font-size:13px;color:#1e293b;background:#f1f5f9;border-left:3px solid var(--correct);border-radius:4px;padding:8px 12px;margin-bottom:8px;}
 .alternativas{list-style:none;display:flex;flex-direction:column;gap:5px;}
 .alt{display:flex;align-items:flex-start;gap:8px;padding:7px 10px;border-radius:8px;border:1px solid transparent;cursor:pointer;transition:background .15s;font-size:12.5px;line-height:1.5;color:#374151;}
 .alt:hover{background:#f0f4ff;}
@@ -692,10 +694,13 @@ function renderCard(q,delay){
   if(!enunTemTag){
     (q.imagens||[]).forEach(arq=>{ imgsHtml+=imgTag(arq); });
   }
-  const altsHtml=q.alternativas.map(a=>{
+  const eDiscursiva = q.modalidade==='discursiva';
+  const altsHtml=eDiscursiva ? '' : q.alternativas.map(a=>{
     const ok=gabRev&&a.letra===q.gabarito;
     return`<li class="alt${ok?' correta':''}" onclick="revelarGabarito(${q.id})"><span class="alt-letra">${a.letra})</span><span>${renderEnunciado(a.texto)}</span></li>`;
   }).join('');
+  const nLinhas = q.linhas_resposta || (q.tipo_resposta==='longa'?15:5);
+  const discursivaHtml = eDiscursiva ? `<p class="discursiva-aviso">✏️ Questão discursiva — resposta ${q.tipo_resposta==='longa'?'longa':'curta'} (${nLinhas} linhas na ficha)</p>${gabRev?`<p class="resposta-modelo"><b>Resposta-modelo:</b> ${renderEnunciado(q.resposta_modelo||'(não informada)')}</p>`:''}` : '';
   const habsHtml=(q.habilidades||[]).map(h=>`<span class="hab-tag">${h}</span>`).join('');
   return`<div class="card${sel?' selecionada':''}" id="card-${q.id}" style="animation-delay:${delay}ms">
     <div class="card-header">
@@ -712,10 +717,10 @@ function renderCard(q,delay){
       ${imgsHtml}
       <p class="enunciado">${renderEnunciado(q.enunciado)}</p>
       ${q.pergunta?`<p class="pergunta">${q.pergunta}</p>`:''}
-      <ul class="alternativas">${altsHtml}</ul>
+      ${eDiscursiva ? discursivaHtml : `<ul class="alternativas">${altsHtml}</ul>`}
     </div>
     <div class="card-footer">
-      <button class="btn-gabarito${gabRev?' revelado':''}" onclick="revelarGabarito(${q.id})">${gabRev?'✓ Gabarito: '+q.gabarito:'Ver Gabarito'}</button>
+      <button class="btn-gabarito${gabRev?' revelado':''}" onclick="revelarGabarito(${q.id})">${eDiscursiva ? (gabRev?'✓ Resposta-modelo exibida':'Ver resposta-modelo') : (gabRev?'✓ Gabarito: '+q.gabarito:'Ver Gabarito')}</button>
     </div>
   </div>`;
 }
@@ -1007,7 +1012,7 @@ function filtrar(){
   const busca=document.getElementById('busca').value.toLowerCase();
   const tipo=document.getElementById('sel-tipo').value;
   const res=QUESTOES.filter(q=>{
-    const mb=!busca||q.enunciado.toLowerCase().includes(busca)||(q.pergunta||'').toLowerCase().includes(busca)||(q.habilidades||[]).join(' ').toLowerCase().includes(busca)||(q.conteudos||[]).join(' ').toLowerCase().includes(busca)||q.alternativas.some(a=>a.texto.toLowerCase().includes(busca));
+    const mb=!busca||q.enunciado.toLowerCase().includes(busca)||(q.pergunta||'').toLowerCase().includes(busca)||(q.habilidades||[]).join(' ').toLowerCase().includes(busca)||(q.conteudos||[]).join(' ').toLowerCase().includes(busca)||(q.alternativas||[]).some(a=>a.texto.toLowerCase().includes(busca));
     // Segmento: bate se ALGUM segmento marcado bater com o(s) segmento(s) da questão (a questão vale pro segmento inteiro)
     const segOk = segmentosSelecionados.length===0 || segmentosSelecionados.some(s=>(q.segmento||[]).includes(s));
     // Série: bate só se a questão tiver marcada especificamente essa série (igual disciplina dentro de área)
@@ -1565,6 +1570,21 @@ async function abrirPreviaFicha(d){
       cy += 2;
     }
 
+    // ── Questão discursiva: desenha linhas em branco em vez de alternativas
+    if(q.modalidade==='discursiva'){
+      const nLinhas = q.linhas_resposta || (q.tipo_resposta==='longa'?15:5);
+      const espLinha = 6; // mm entre cada linha
+      doc.setDrawColor(...cinza); doc.setLineWidth(0.25);
+      cy += 2;
+      for(let i=0;i<nLinhas;i++){
+        garantir(espLinha);
+        doc.line(colX[colAtual], cy, colX[colAtual]+colW, cy);
+        cy += espLinha;
+      }
+      cy += 4; // espaço entre questões
+      return; // pula o bloco de alternativas abaixo (forEach continue)
+    }
+
     // ── Blindagem 2: cada alternativa é renderizada como unidade indivisível
     // Pré-calcula a altura e troca de coluna ANTES de começar, se não couber
     q.alternativas.forEach(a=>{
@@ -1664,6 +1684,10 @@ function normalizarQuestao(q){
     pergunta:q.pergunta||'',
     alternativas:alts,
     gabarito:(q.gabarito||'').toString().trim().toUpperCase(),
+    modalidade:q.modalidade||'objetiva',
+    tipo_resposta:q.tipo_resposta||null,
+    linhas_resposta:q.linhas_resposta||null,
+    resposta_modelo:q.resposta_modelo||'',
     habilidades:habs,
     segmento: q.segmento ? String(q.segmento).split(',').map(s=>s.trim()).filter(Boolean) : (segmentoDeHabilidades(habs) ? [segmentoDeHabilidades(habs)] : []),
     serie: q.serie ? String(q.serie).split(',').map(s=>s.trim()).filter(Boolean) : [],
